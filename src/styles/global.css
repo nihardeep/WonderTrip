@@ -1,0 +1,173 @@
+/* Global Reset and Base Styles */
+
+*,
+
+*::before,
+
+*::after {
+
+  box-sizing: border-box;
+
+  margin: 0;
+
+  padding: 0;
+
+}
+
+
+
+html {
+
+  font-size: 16px;
+
+  -webkit-font-smoothing: antialiased;
+
+  -moz-osx-font-smoothing: grayscale;
+
+}
+
+
+
+body {
+
+  min-height: 100vh;
+
+  line-height: 1.6;
+
+  overflow-x: hidden;
+
+}
+
+
+
+/* Remove default link styles */
+
+a {
+
+  text-decoration: none;
+
+  color: inherit;
+
+}
+
+
+
+/* Remove list styles */
+
+ul, ol {
+
+  list-style: none;
+
+}
+
+
+
+/* Button reset */
+
+button {
+
+  font-family: inherit;
+
+  cursor: pointer;
+
+  border: none;
+
+  background: none;
+
+}
+
+
+
+/* Input reset */
+
+input,
+
+textarea,
+
+select {
+
+  font-family: inherit;
+
+}
+
+
+
+/* Image styles */
+
+img {
+
+  max-width: 100%;
+
+  height: auto;
+
+  display: block;
+
+}
+
+
+
+/* Scrollbar Styling */
+
+::-webkit-scrollbar {
+
+  width: 10px;
+
+}
+
+
+
+::-webkit-scrollbar-track {
+
+  background: #f1f1f1;
+
+}
+
+
+
+::-webkit-scrollbar-thumb {
+
+  background: #888;
+
+  border-radius: 5px;
+
+}
+
+
+
+::-webkit-scrollbar-thumb:hover {
+
+  background: #555;
+
+}
+
+
+
+/* Selection Styling */
+
+::selection {
+
+  background-color: #0ea5e9;
+
+  color: white;
+
+}
+
+
+
+::-moz-selection {
+
+  background-color: #0ea5e9;
+
+  color: white;
+
+}
+
+
+
+/* Focus Styles */
+
+:focus-visible {
+
+  outline: 2px solid #0ea5e9;
+
+}
