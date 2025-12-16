@@ -418,15 +418,17 @@ const Discover = () => {
           </div>
 
           {/* AI Trip Generation CTA */}
-          <Card className="bg-purple-600 border-0 shadow-lg">
+          <Card className="border-0 shadow-lg rounded-2xl bg-[#5b61ff]">
             <CardContent className="p-6 text-white">
-              <h3 className="text-lg font-semibold mb-2">Turn Any Video Into a Trip</h3>
-              <p className="text-purple-100 text-sm mb-4 leading-relaxed">
-                Let WonderTrip's AI craft your next adventure from your content. Share your experiences, generate detailed itineraries, and inspire others.
+              <h3 className="text-lg font-semibold mb-3">Turn Any Video Into a Trip</h3>
+              <p className="text-sm mb-5 leading-relaxed text-white/90">
+                Let WonderFlow&apos;s AI craft your next adventure from your content. Share your
+                experiences, generate detailed itineraries, and inspire others.
               </p>
               <button
+                type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="w-full bg-white text-purple-600 hover:bg-gray-100 font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+                className="w-full bg-white text-[#5b61ff] hover:bg-white/90 font-semibold py-3 px-4 rounded-full transition-colors duration-200 text-sm"
               >
                 Start AI Trip Generation
               </button>
