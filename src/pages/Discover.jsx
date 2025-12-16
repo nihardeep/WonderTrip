@@ -1,14 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus } from 'lucide-react';
+import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus, X, Upload, Video, Image as ImageIcon } from 'lucide-react';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
+import Input from '../components/common/Input';
 
 const Discover = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const [selectedDestination, setSelectedDestination] = useState(searchQuery || '');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tripType, setTripType] = useState('video'); // 'video' or 'photos'
+  const [formData, setFormData] = useState({
+    videoUrl: '',
+    videoFile: null,
+    photos: [],
+    destination: '',
+    tripType: 'adventure'
+  });
 
   // Update selectedDestination when URL search param changes
   useEffect(() => {
@@ -16,6 +26,38 @@ const Discover = () => {
       setSelectedDestination(searchQuery);
     }
   }, [searchQuery]);
+
+  // Scroll to top when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [isModalOpen]);
+
+  const handleFileChange = (e, type) => {
+    if (type === 'video') {
+      setFormData(prev => ({ ...prev, videoFile: e.target.files[0] }));
+    } else if (type === 'photos') {
+      setFormData(prev => ({ ...prev, photos: Array.from(e.target.files) }));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle form submission
+    console.log('Form submitted:', formData);
+    setIsModalOpen(false);
+    // Scroll to top after submission
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Reset form
+    setFormData({
+      videoUrl: '',
+      videoFile: null,
+      photos: [],
+      destination: '',
+      tripType: 'adventure'
+    });
+  };
 
   // Mock creator posts data - at least 5 profiles as requested
   const creatorPosts = [
@@ -177,9 +219,11 @@ const Discover = () => {
             </div>
 
             {/* User Profile */}
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-gray-600" />
-            </div>
+            <img
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces"
+              alt="User profile"
+              className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+            />
           </div>
         </div>
       </header>
@@ -241,9 +285,25 @@ const Discover = () => {
                   <CardContent className="p-6 pb-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                          <User className="w-6 h-6 text-gray-400" />
-                        </div>
+                        <img
+                          src={
+                            post.creator.name === 'John Doe'
+                              ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces'
+                              : post.creator.name === 'Sophia Travels'
+                              ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces'
+                              : post.creator.name === 'Alice Travel'
+                              ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces'
+                              : post.creator.name === 'Wanderlust Ben'
+                              ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces'
+                              : post.creator.name === 'Journey Jules'
+                              ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
+                              : post.creator.name === 'Tokyo Explorer'
+                              ? 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces'
+                              : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop&crop=faces'
+                          }
+                          alt={post.creator.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
                         <span className="font-semibold text-gray-900">{post.creator.name}</span>
                       </div>
                       <Button
@@ -255,8 +315,24 @@ const Discover = () => {
                     </div>
 
                     {/* Main Image */}
-                    <div className="w-full h-64 bg-gradient-to-br from-purple-200 to-blue-300 rounded-lg mb-4 flex items-center justify-center">
-                      <MapPin className="w-16 h-16 text-white opacity-50" />
+                    <div className="w-full h-64 rounded-lg mb-4 overflow-hidden">
+                      <img
+                        src={
+                          post.location.includes('Tokyo') 
+                            ? 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80'
+                            : post.location.includes('Bali')
+                            ? 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80'
+                            : post.location.includes('Maldives')
+                            ? 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'
+                            : post.location.includes('Kuala Lumpur')
+                            ? 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80'
+                            : post.location.includes('Hanoi')
+                            ? 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80'
+                            : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
+                        }
+                        alt={post.location}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
 
                     {/* Description */}
@@ -307,9 +383,17 @@ const Discover = () => {
             <div className="space-y-3">
               {trendingCreators.map((creator, index) => (
                 <div key={index} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                    <User className="w-6 h-6 text-gray-400" />
-                  </div>
+                  <img
+                    src={
+                      creator.name === 'Alice Travel'
+                        ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces'
+                        : creator.name === 'Wanderlust Ben'
+                        ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces'
+                        : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
+                    }
+                    alt={creator.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
                   <span className="font-medium text-gray-900">{creator.name}</span>
                 </div>
               ))}
@@ -334,19 +418,216 @@ const Discover = () => {
           </div>
 
           {/* AI Trip Generation CTA */}
-          <Card className="bg-purple-600 border-0">
+          <Card className="bg-purple-600 border-0 shadow-lg">
             <CardContent className="p-6 text-white">
               <h3 className="text-lg font-semibold mb-2">Turn Any Video Into a Trip</h3>
               <p className="text-purple-100 text-sm mb-4 leading-relaxed">
                 Let WonderTrip's AI craft your next adventure from your content. Share your experiences, generate detailed itineraries, and inspire others.
               </p>
-              <Button className="w-full bg-white text-purple-600 hover:bg-gray-100">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="w-full bg-white text-purple-600 hover:bg-gray-100 font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+              >
                 Start AI Trip Generation
-              </Button>
+              </button>
             </CardContent>
           </Card>
         </aside>
       </div>
+
+      {/* AI Trip Generation Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-display font-bold text-gray-900">Create AI Trip</h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="p-6 space-y-6">
+              {/* Trip Type Selection */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Choose Content Type
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => setTripType('video')}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      tripType === 'video'
+                        ? 'border-purple-600 bg-purple-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Video className={`w-6 h-6 mx-auto mb-2 ${tripType === 'video' ? 'text-purple-600' : 'text-gray-400'}`} />
+                    <span className={`font-medium ${tripType === 'video' ? 'text-purple-600' : 'text-gray-700'}`}>
+                      Create from Video
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTripType('photos')}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      tripType === 'photos'
+                        ? 'border-purple-600 bg-purple-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <ImageIcon className={`w-6 h-6 mx-auto mb-2 ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-400'}`} />
+                    <span className={`font-medium ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-700'}`}>
+                      Create from Photos
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Video Option */}
+              {tripType === 'video' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Upload Video or Instagram/YouTube URL
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="Paste Instagram or YouTube URL..."
+                      value={formData.videoUrl}
+                      onChange={(e) => setFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
+                    />
+                  </div>
+                  <div className="text-center text-gray-500 text-sm">OR</div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Upload Video File
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={(e) => handleFileChange(e, 'video')}
+                        className="hidden"
+                        id="video-upload"
+                      />
+                      <label htmlFor="video-upload" className="cursor-pointer">
+                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {formData.videoFile ? formData.videoFile.name : 'MP4, MOV, AVI (max 500MB)'}
+                        </p>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Photos Option */}
+              {tripType === 'photos' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Upload Photo Collage
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={(e) => handleFileChange(e, 'photos')}
+                      className="hidden"
+                      id="photos-upload"
+                    />
+                    <label htmlFor="photos-upload" className="cursor-pointer">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formData.photos.length > 0
+                          ? `${formData.photos.length} photo(s) selected`
+                          : 'JPG, PNG, HEIC (max 10MB each)'}
+                      </p>
+                    </label>
+                  </div>
+                  {formData.photos.length > 0 && (
+                    <div className="grid grid-cols-3 gap-2 mt-4">
+                      {formData.photos.slice(0, 6).map((photo, index) => (
+                        <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                          <img
+                            src={URL.createObjectURL(photo)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Trip Destination */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Trip Destination
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Enter destination (e.g., Tokyo, Japan)"
+                  value={formData.destination}
+                  onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+                  required
+                />
+              </div>
+
+              {/* Trip Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Trip Type
+                </label>
+                <select
+                  value={formData.tripType}
+                  onChange={(e) => setFormData(prev => ({ ...prev, tripType: e.target.value }))}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none"
+                  required
+                >
+                  <option value="adventure">Adventure</option>
+                  <option value="relaxation">Relaxation</option>
+                  <option value="cultural">Cultural</option>
+                  <option value="beach">Beach</option>
+                  <option value="mountain">Mountain</option>
+                  <option value="city">City</option>
+                  <option value="nature">Nature</option>
+                  <option value="luxury">Luxury</option>
+                </select>
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  Create Trip
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
