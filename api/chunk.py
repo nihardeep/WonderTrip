@@ -3,7 +3,7 @@ from http.server import BaseHTTPRequestHandler
 import json
 import os
 
-import google.generativeai as genai
+from google import genai
 from pinecone import Pinecone
 
 
