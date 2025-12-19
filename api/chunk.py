@@ -1,27 +1,55 @@
 from typing import Dict, Any, List
 from http.server import BaseHTTPRequestHandler
 import json
+import os
 
+import google.generativeai as genai
+from pinecone import Pinecone
+
+
+# ======================================================
+# CONFIG (from Vercel Environment Variables)
+# ======================================================
+
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+PINECONE_API_KEY = os.environ["PINECONE_API_KEY"]
+PINECONE_INDEX = os.environ["PINECONE_INDEX"]
+
+EMBED_MODEL = "models/text-embedding-004"
+
+
+# ======================================================
+# INITIALIZE CLIENTS (cold start safe)
+# ======================================================
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+pc = Pinecone(api_key=PINECONE_API_KEY)
+index = pc.Index(PINECONE_INDEX)
+
+
+# ======================================================
+# SEMANTIC CHUNKING LOGIC
+# ======================================================
 
 def semantic_chunk_itinerary(itinerary: Dict[str, Any]) -> List[Dict[str, Any]]:
     chunks = []
 
     def add_chunk(content: str, metadata: Dict[str, Any]):
-        if not content or not content.strip():
-            return
-        chunks.append({
-            "content": content.strip(),
-            "metadata": metadata
-        })
+        if content and content.strip():
+            chunks.append({
+                "content": content.strip(),
+                "metadata": metadata
+            })
 
     destination = itinerary.get("destination", {})
     itinerary_outline = itinerary.get("itinerary_outline", [])
     trip_type = itinerary.get("trip_type", [])
 
     base_metadata = {
+        "trip_id": itinerary.get("trip_id"),
         "destination_id": itinerary.get("destination_id"),
         "hotel_id": itinerary.get("hotel_id"),
-        "trip_id": itinerary.get("trip_id"),
         "city": destination.get("city"),
         "country": destination.get("country"),
         "region": destination.get("region"),
@@ -29,13 +57,13 @@ def semantic_chunk_itinerary(itinerary: Dict[str, Any]) -> List[Dict[str, Any]]:
         "source": "llm_itinerary"
     }
 
-    # OVERVIEW
+    # -------- OVERVIEW --------
     add_chunk(
         f"{itinerary.get('headline', '')}. {itinerary.get('description', '')}",
         {**base_metadata, "chunk_type": "overview"}
     )
 
-    # DAYS
+    # -------- DAYS / ACTIVITIES --------
     for day in itinerary_outline:
         day_number = day.get("day")
 
@@ -44,30 +72,10 @@ def semantic_chunk_itinerary(itinerary: Dict[str, Any]) -> List[Dict[str, Any]]:
             {
                 **base_metadata,
                 "chunk_type": "day",
-                "day": day_number,
-                "time_of_day": day.get("time_of_day")
+                "day": day_number
             }
         )
 
-        # MEALS
-        for meal_type, meal in day.get("meals", {}).items():
-            if meal and meal.get("description"):
-                add_chunk(
-                    meal["description"],
-                    {
-                        **base_metadata,
-                        "chunk_type": "meal",
-                        "meal_type": meal_type,
-                        "day": day_number,
-                        "time_of_day": (
-                            "morning" if meal_type == "breakfast"
-                            else "afternoon" if meal_type == "lunch"
-                            else "night"
-                        )
-                    }
-                )
-
-        # ACTIVITIES
         for activity in day.get("activities", []):
             if activity.get("description"):
                 add_chunk(
@@ -75,13 +83,10 @@ def semantic_chunk_itinerary(itinerary: Dict[str, Any]) -> List[Dict[str, Any]]:
                     {
                         **base_metadata,
                         "chunk_type": "activity",
-                        "activity": activity.get("name", "unknown"),
-                        "day": day_number,
-                        "time_of_day": day.get("time_of_day")
+                        "day": day_number
                     }
                 )
 
-        # DAY LOGISTICS
         if day.get("how_to_reach"):
             add_chunk(
                 day["how_to_reach"],
@@ -92,7 +97,7 @@ def semantic_chunk_itinerary(itinerary: Dict[str, Any]) -> List[Dict[str, Any]]:
                 }
             )
 
-    # FALLBACK LOGISTICS
+    # -------- FALLBACK LOGISTICS --------
     if not any(c["metadata"]["chunk_type"] == "logistics" for c in chunks):
         add_chunk(
             f"The itinerary is designed to be explored comfortably within {destination.get('city')}, "
@@ -103,18 +108,51 @@ def semantic_chunk_itinerary(itinerary: Dict[str, Any]) -> List[Dict[str, Any]]:
     return chunks
 
 
-# Vercel entry point
+# ======================================================
+# EMBEDDING + UPSERT
+# ======================================================
+
+def embed_and_upsert(chunks: List[Dict[str, Any]]):
+    vectors = []
+
+    for i, chunk in enumerate(chunks):
+        embedding = genai.embed_content(
+            model=EMBED_MODEL,
+            content=chunk["content"]
+        )["embedding"]
+
+        vectors.append({
+            "id": f"{chunk['metadata'].get('trip_id', 'trip')}-{i}",
+            "values": embedding,
+            "metadata": {
+                **chunk["metadata"],
+                "content": chunk["content"]
+            }
+        })
+
+    index.upsert(vectors=vectors)
+
+
+# ======================================================
+# VERCEL ENTRY POINT
+# ======================================================
+
 class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))
         body = self.rfile.read(content_length)
 
         itinerary = json.loads(body)
-        chunks = semantic_chunk_itinerary(itinerary)
 
-        response = json.dumps(chunks).encode("utf-8")
+        chunks = semantic_chunk_itinerary(itinerary)
+        embed_and_upsert(chunks)
+
+        response = {
+            "status": "success",
+            "chunks_ingested": len(chunks)
+        }
 
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
-        self.wfile.write(response)
+        self.wfile.write(json.dumps(response).encode("utf-8"))
