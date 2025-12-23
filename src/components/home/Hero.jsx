@@ -10,16 +10,16 @@ const Hero = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/destinations?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
     } else {
-      navigate('/destinations');
+      navigate('/discover');
     }
   };
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background Image - Tropical Coastline */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: 'url(https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80)',
