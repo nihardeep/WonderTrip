@@ -445,7 +445,11 @@ const Discover = () => {
 
                     {/* Action Buttons */}
                     <div className="flex space-x-3">
-                      <Button variant="outline" size="sm">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/trip/${post.id}`)}
+                      >
                         View Trip
                       </Button>
                       <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
