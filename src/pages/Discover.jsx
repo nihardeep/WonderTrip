@@ -6,12 +6,14 @@ import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
 import Input from '../components/common/Input';
+import AuthModal from '../components/common/AuthModal';
 
 const Discover = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const [selectedDestination, setSelectedDestination] = useState(searchQuery || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [tripType, setTripType] = useState('video'); // 'video' or 'photos'
   const [formData, setFormData] = useState({
     videoUrl: '',
@@ -27,8 +29,7 @@ const Discover = () => {
   // Handle opening the modal with auth check
   const handleOpenModal = () => {
     if (!user) {
-      alert("Please create profile to upload image");
-      navigate('/login');
+      setShowAuthModal(true);
       return;
     }
     setIsModalOpen(true);
@@ -688,6 +689,12 @@ const Discover = () => {
           </div>
         </div>
       )}
+      {/* Auth Requirement Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+      />
+
     </div>
   );
 };
