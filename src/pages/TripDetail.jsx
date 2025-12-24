@@ -52,30 +52,39 @@ const TripDetail = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+            {/* Header - matching Discover page */}
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
                 <div className="container-custom">
                     <div className="flex items-center justify-between h-16">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                            <span className="font-medium">Back</span>
-                        </button>
+                        {/* Logo */}
                         <Link to="/" className="flex items-center space-x-2">
                             <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
                                 <MapPin className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-xl font-display font-bold text-gray-900">WonderTrip</span>
                         </Link>
-                        <div className="w-20"></div> {/* Spacer for centering */}
+
+                        {/* Back to Discover */}
+                        <button
+                            onClick={() => navigate('/discover')}
+                            className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors"
+                        >
+                            <ArrowLeft className="w-5 h-5" />
+                            <span className="font-medium">Back to Discover</span>
+                        </button>
+
+                        {/* User Profile */}
+                        <img
+                            src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces"
+                            alt="User profile"
+                            className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+                        />
                     </div>
                 </div>
             </header>
 
             <div className="container-custom py-8">
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-3xl mx-auto">{/* Matching Discover's max-w-3xl */}
                     {/* Hero Image */}
                     <div className="relative w-full h-96 rounded-2xl overflow-hidden mb-6 shadow-lg">
                         <img
