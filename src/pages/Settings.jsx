@@ -6,7 +6,7 @@ import Input from '../components/common/Input';
 import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
 
-const Profile = () => {
+const Settings = () => {
   const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
@@ -198,8 +198,8 @@ const Profile = () => {
                         <div className="text-right">
                           <div className="font-semibold">${booking.totalPrice}</div>
                           <div className={`text-sm px-2 py-1 rounded-full ${booking.status === 'confirmed'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-blue-100 text-blue-800'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-blue-100 text-blue-800'
                             }`}>
                             {booking.status}
                           </div>
@@ -312,8 +312,8 @@ const Profile = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${activeTab === tab.id
-                          ? 'bg-primary-50 text-primary-700'
-                          : 'text-gray-700 hover:bg-gray-50'
+                        ? 'bg-primary-50 text-primary-700'
+                        : 'text-gray-700 hover:bg-gray-50'
                         }`}
                     >
                       <tab.icon className="w-5 h-5" />
