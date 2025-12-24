@@ -82,11 +82,12 @@ const Login = () => {
       const message = responseItem.message || responseItem.json?.message;
 
       if (status === 'success') {
-        // Redirect to Discover page as requested
+        // Start session
+        loginSuccess({ email: formData.email, name: 'User' }); // Minimal user object
         navigate('/discover');
         return;
       } else {
-        setErrors({ general: message || 'Login failed. Please check your credentials.' });
+        setErrors({ general: 'Invalid email or password.' });
       }
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
