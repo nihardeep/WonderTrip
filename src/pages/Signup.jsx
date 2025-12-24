@@ -90,6 +90,20 @@ const Signup = () => {
       password: formData.password,
     };
 
+    // Send data to n8n webhook
+    try {
+      await fetch('https://rahulmohan.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(signupData),
+      });
+    } catch (error) {
+      console.error('Failed to send data to webhook:', error);
+      // Continue with signup even if webhook fails
+    }
+
     const result = await signup(signupData);
 
     if (result.success) {
