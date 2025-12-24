@@ -68,11 +68,15 @@ const Discover = () => {
     formDataToSend.append('tripType', formData.tripType);
     formDataToSend.append('destination', formData.destination);
 
-    if (formData.tripType === 'video' && formData.videoFile) {
-      formDataToSend.append('files', formData.videoFile);
-    } else if (formData.tripType === 'photos' && formData.photos.length > 0) {
+    // Optional video
+    if (formData.videoFile) {
+      formDataToSend.append('video', formData.videoFile);
+    }
+
+    // Optional images
+    if (formData.photos && formData.photos.length > 0) {
       formData.photos.forEach((photo) => {
-        formDataToSend.append('files', photo);
+        formDataToSend.append('images', photo);
       });
     }
 
@@ -85,7 +89,16 @@ const Discover = () => {
       });
 
       if (response.ok) {
-        alert('Trip generation started! You will be notified via email.');
+        setIsModalOpen(false);
+        setShowSuccessModal(true);
+        // Reset form
+        setFormData({
+          videoUrl: '',
+          videoFile: null,
+          photos: [],
+          destination: '',
+          tripType: 'adventure'
+        });
       } else {
         alert('Failed to start trip generation. Please try again.');
       }
@@ -93,18 +106,6 @@ const Discover = () => {
       console.error('Error sending data to webhook:', error);
       alert('Connection error. Please try again.');
     }
-
-    setIsModalOpen(false);
-    // Scroll to top after submission
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Reset form
-    setFormData({
-      videoUrl: '',
-      videoFile: null,
-      photos: [],
-      destination: '',
-      tripType: 'adventure'
-    });
   };
 
   // Mock creator posts data - at least 5 profiles as requested
