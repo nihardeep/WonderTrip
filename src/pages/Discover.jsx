@@ -237,8 +237,8 @@ const Discover = () => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-colors ${item.active
-                    ? 'bg-purple-50 text-purple-700'
-                    : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-purple-50 text-purple-700'
+                  : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
                 <item.icon className={`w-5 h-5 ${item.active ? 'text-purple-600' : ''}`} />
@@ -263,6 +263,38 @@ const Discover = () => {
               <HelpCircle className="w-5 h-5" />
               <span className="font-medium">Help</span>
             </Link>
+
+            {/* New AI Trip CTA */}
+            <div className="mt-6 mx-4 p-6 rounded-2xl bg-gradient-to-br from-[#4158D0] to-[#C850C0] text-white text-center shadow-lg relative overflow-hidden group">
+              {/* Abstract decorative elements */}
+              <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
+              <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 rounded-full bg-pink-500 opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
+
+              <div className="relative z-10">
+                <h3 className="text-xl font-display font-bold mb-1 leading-tight">
+                  Your Memories.
+                </h3>
+                <h3 className="text-xl font-display font-bold mb-4 leading-tight">
+                  AI-Powered Journeys
+                </h3>
+
+                <p className="text-xs text-white/90 mb-6 leading-relaxed">
+                  Transform videos & photos into personalized travel plans
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-full py-3 px-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full font-semibold text-sm hover:bg-white hover:text-purple-600 transition-all duration-300 shadow-sm"
+                >
+                  Create My AI Trip
+                </button>
+
+                <p className="mt-4 text-[10px] text-white/80 font-medium tracking-wide uppercase opacity-80">
+                  Share. Discover. Inspire.
+                </p>
+              </div>
+            </div>
           </nav>
         </aside>
 
@@ -416,23 +448,7 @@ const Discover = () => {
             </div>
           </div>
 
-          {/* AI Trip Generation CTA */}
-          <Card className="border-0 shadow-lg rounded-2xl !bg-[#5b61ff] overflow-hidden">
-            <CardContent className="p-6 text-white relative z-10">
-              <h3 className="text-lg font-semibold mb-3 text-white">Turn Any Video Into a Trip</h3>
-              <p className="text-sm mb-5 leading-relaxed text-white/90">
-                Let WonderFlow&apos;s AI craft your next adventure from your content. Share your
-                experiences, generate detailed itineraries, and inspire others.
-              </p>
-              <button
-                type="button"
-                onClick={() => setIsModalOpen(true)}
-                className="w-full bg-white text-[#5b61ff] hover:bg-white/90 font-semibold py-3 px-4 rounded-full transition-colors duration-200 text-sm"
-              >
-                Start AI Trip Generation
-              </button>
-            </CardContent>
-          </Card>
+
         </aside>
       </div>
 
@@ -461,8 +477,8 @@ const Discover = () => {
                     type="button"
                     onClick={() => setTripType('video')}
                     className={`p-4 border-2 rounded-lg transition-all ${tripType === 'video'
-                        ? 'border-purple-600 bg-purple-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-gray-200 hover:border-gray-300'
                       }`}
                   >
                     <Video className={`w-6 h-6 mx-auto mb-2 ${tripType === 'video' ? 'text-purple-600' : 'text-gray-400'}`} />
@@ -474,8 +490,8 @@ const Discover = () => {
                     type="button"
                     onClick={() => setTripType('photos')}
                     className={`p-4 border-2 rounded-lg transition-all ${tripType === 'photos'
-                        ? 'border-purple-600 bg-purple-50'
-                        : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-purple-600 bg-purple-50'
+                      : 'border-gray-200 hover:border-gray-300'
                       }`}
                   >
                     <ImageIcon className={`w-6 h-6 mx-auto mb-2 ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-400'}`} />
