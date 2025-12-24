@@ -85,22 +85,28 @@ const Login = () => {
       console.log('Resolved Status:', status);
 
       // Temporary debugging alerts to help user see what's happening
-      alert(`Debug: Status is ${status}`);
+      // alert(`Debug: Status is "${status}" (Length: ${status ? status.length : 0})`);
 
-      if (status && status.toLowerCase() === 'success') {
+      if (status && status.toString().trim().toLowerCase() === 'success') {
         console.log('Login successful. Starting session and navigating...');
         // Start session
-        loginSuccess({ email: formData.email, name: 'User' }); // Minimal user object
-        alert('Login Success! Redirecting to Discover...'); // Visual confirmation
-        navigate('/discover');
+        try {
+          loginSuccess({ email: formData.email, name: 'User' }); // Minimal user object
+          // alert('Login Success! Redirecting to Discover...'); // Visual confirmation
+          navigate('/discover');
+        } catch (err) {
+          alert(`Error processing login: ${err.message}`);
+          console.error(err);
+        }
         return;
       } else {
         console.log('Login failed with status:', status);
-        alert(`Login Failed. Status: ${status}, Message: ${message}`);
+        // alert(`Login Failed. Status: ${status}, Message: ${message}`);
         setErrors({ general: 'Invalid email or password.' });
       }
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
+      alert(`Connection Error: ${error.message}`);
       setErrors({ general: 'Connection error. Please try again later.' });
     }
 
