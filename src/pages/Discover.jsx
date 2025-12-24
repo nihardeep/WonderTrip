@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus, X, Upload, Video, Image as ImageIcon } from 'lucide-react';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
@@ -19,6 +20,19 @@ const Discover = () => {
     destination: '',
     tripType: 'adventure'
   });
+
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Handle opening the modal with auth check
+  const handleOpenModal = () => {
+    if (!user) {
+      alert("Please create profile to upload image");
+      navigate('/login');
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   // Update selectedDestination when URL search param changes
   useEffect(() => {
@@ -42,10 +56,41 @@ const Discover = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
+
+    // Create FormData for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('email', user?.email || '');
+    formDataToSend.append('tripType', formData.tripType);
+    formDataToSend.append('destination', formData.destination);
+
+    if (formData.tripType === 'video' && formData.videoFile) {
+      formDataToSend.append('files', formData.videoFile);
+    } else if (formData.tripType === 'photos' && formData.photos.length > 0) {
+      formData.photos.forEach((photo) => {
+        formDataToSend.append('files', photo);
+      });
+    }
+
+    // Send to n8n webhook
+    try {
+      const response = await fetch('https://rahulmohan.app.n8n.cloud/form-test/6f684c22-5a38-40bd-a110-99c2d1e58835', {
+        method: 'POST',
+        body: formDataToSend,
+        // Note: Content-Type header is set automatically by browser for FormData
+      });
+
+      if (response.ok) {
+        alert('Trip generation started! You will be notified via email.');
+      } else {
+        alert('Failed to start trip generation. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error sending data to webhook:', error);
+      alert('Connection error. Please try again.');
+    }
+
     setIsModalOpen(false);
     // Scroll to top after submission
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -284,7 +329,7 @@ const Discover = () => {
 
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={handleOpenModal}
                   className="w-full py-3 px-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full font-semibold text-sm hover:bg-white hover:text-purple-600 transition-all duration-300 shadow-sm"
                 >
                   Create My AI Trip
