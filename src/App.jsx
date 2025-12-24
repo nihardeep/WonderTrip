@@ -30,6 +30,8 @@ import Contact from './pages/Contact';
 
 import Discover from './pages/Discover';
 
+import TripDetail from './pages/TripDetail';
+
 import NotFound from './pages/NotFound';
 
 
@@ -55,6 +57,7 @@ function App() {
     <Routes>
       {/* Discover page has its own layout with header and sidebar */}
       <Route path="/discover" element={<Discover />} />
+      <Route path="/trip/:id" element={<TripDetail />} />
 
       {/* Other pages use standard layout */}
       <Route
