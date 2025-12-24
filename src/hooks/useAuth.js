@@ -8,6 +8,7 @@ export const useAuth = () => {
     logout,
     refreshUser,
     isAuthenticated,
+    loginSuccess, // Added
     loading
   } = useUser();
 
@@ -18,6 +19,7 @@ export const useAuth = () => {
     logout,
     refreshUser,
     isAuthenticated,
+    loginSuccess, // Added
     loading,
     // Additional convenience methods
     isAdmin: user?.role === 'admin',
