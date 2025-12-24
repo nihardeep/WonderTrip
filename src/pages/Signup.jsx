@@ -88,29 +88,40 @@ const Signup = () => {
       email: formData.email,
       phone: formData.phone,
       password: formData.password,
+      terms: formData.agreeToTerms ? 'Accepted' : 'Rejected'
     };
 
-    // Send data to n8n webhook
+    // Send data to n8n webhook (Production)
     try {
-      await fetch('https://rahulmohan.app.n8n.cloud/webhook-test/933ce8d9-e632-45dc-9144-87188d27666a', {
+      const response = await fetch('https://rahulmohan.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(signupData),
       });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        navigate('/login');
+        return;
+      } else {
+        setErrors({ general: data.message || 'Registration failed. Please try again.' });
+      }
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
-      // Continue with signup even if webhook fails
+      setErrors({ general: 'Connection error. Please try again later.' });
     }
 
-    const result = await signup(signupData);
+    // Backend signup is now handled via webhook -> n8n -> backend
+    // const result = await signup(signupData);
 
-    if (result.success) {
-      navigate('/');
-    } else {
-      setErrors({ general: result.error });
-    }
+    // if (result.success) {
+    //   navigate('/');
+    // } else {
+    //   setErrors({ general: result.error });
+    // }
   };
 
   return (
