@@ -75,13 +75,18 @@ const Login = () => {
 
       const data = await response.json();
 
-      if (data.status === 'success') {
-        // For prototype purposes, assuming login is successful
-        // In a real app, we would need to set the user state/token here
-        navigate(from, { replace: true });
+      // Handle n8n response which might be an array or object
+      // User reported format: [{ "status": "success", ... }] or [{ "json": { "status": "error", ... } }]
+      const responseItem = Array.isArray(data) ? data[0] : data;
+      const status = responseItem.status || responseItem.json?.status;
+      const message = responseItem.message || responseItem.json?.message;
+
+      if (status === 'success') {
+        // Redirect to Discover page as requested
+        navigate('/discover');
         return;
       } else {
-        setErrors({ general: data.message || 'Login failed. Please check your credentials.' });
+        setErrors({ general: message || 'Login failed. Please check your credentials.' });
       }
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
