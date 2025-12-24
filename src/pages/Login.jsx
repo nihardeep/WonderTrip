@@ -59,13 +59,44 @@ const Login = () => {
 
     if (!validateForm()) return;
 
-    const result = await login(formData.email, formData.password);
+    const loginData = {
+      email: formData.email,
+      password: formData.password,
+      action: 'signin'
+    };
 
-    if (result.success) {
-      navigate(from, { replace: true });
-    } else {
-      setErrors({ general: result.error });
+    // Send data to n8n webhook
+    try {
+      const response = await fetch('https://rahulmohan.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginData),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        // For prototype purposes, assuming login is successful
+        // In a real app, we would need to set the user state/token here
+        navigate(from, { replace: true });
+        return;
+      } else {
+        setErrors({ general: data.message || 'Login failed. Please check your credentials.' });
+      }
+    } catch (error) {
+      console.error('Failed to send data to webhook:', error);
+      setErrors({ general: 'Connection error. Please try again later.' });
     }
+
+    // Backend login is updated to use webhook
+    // const result = await login(formData.email, formData.password);
+    // if (result.success) {
+    //   navigate(from, { replace: true });
+    // } else {
+    //   setErrors({ general: result.error });
+    // }
   };
 
   return (

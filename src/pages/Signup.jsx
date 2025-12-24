@@ -88,7 +88,8 @@ const Signup = () => {
       email: formData.email,
       phone: formData.phone,
       password: formData.password,
-      terms: formData.agreeToTerms ? 'Accepted' : 'Rejected'
+      terms: formData.agreeToTerms ? 'Accepted' : 'Rejected',
+      action: 'signup'
     };
 
     // Send data to n8n webhook (Production)
