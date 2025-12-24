@@ -15,7 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const { login, loading } = useAuth();
+  const { login, loading, loginSuccess } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
