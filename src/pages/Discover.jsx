@@ -87,7 +87,11 @@ const Discover = () => {
       // If video is uploaded, send to video ingest endpoint first
       if (formData.videoFile) {
         const videoFormData = new FormData();
-        videoFormData.append('video', formData.videoFile);
+        videoFormData.append('file', formData.videoFile);              // MUST be "file"
+        videoFormData.append('email', user?.email || '');              // REQUIRED
+        videoFormData.append('source', 'website');                     // REQUIRED
+        videoFormData.append('user_destination', formData.destination); // optional
+        videoFormData.append('user_trip_type', formData.tripType);     // optional
 
         await fetch('https://fern-exergonic-compositionally.ngrok-free.dev/video/ingest', {
           method: 'POST',
