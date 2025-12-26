@@ -87,6 +87,11 @@ const Discover = () => {
     try {
       // If video is uploaded, send to video ingest endpoint first
       if (formData.videoFile) {
+        // Show processing modal immediately
+        setIsModalOpen(false);
+        setShowSuccessModal(true);
+        setIsProcessing(true);
+
         const videoFormData = new FormData();
         videoFormData.append('file', formData.videoFile);              // MUST be "file"
         videoFormData.append('email', user?.email || '');              // REQUIRED
@@ -101,10 +106,9 @@ const Discover = () => {
 
         const videoData = await videoResponse.json();
 
-        // If video ingest returns RECEIVED status, show success modal
+        // If video ingest returns RECEIVED status, transition to success state
         if (videoData.status === 'RECEIVED') {
-          setIsModalOpen(false);
-          setShowSuccessModal(true);
+          setIsProcessing(false);
           // Reset form
           setFormData({
             videoUrl: '',
