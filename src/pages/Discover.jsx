@@ -93,10 +93,28 @@ const Discover = () => {
         videoFormData.append('user_destination', formData.destination); // optional
         videoFormData.append('user_trip_type', formData.tripType);     // optional
 
-        await fetch('https://fern-exergonic-compositionally.ngrok-free.dev/video/ingest', {
+        const videoResponse = await fetch('https://fern-exergonic-compositionally.ngrok-free.dev/video/ingest', {
           method: 'POST',
           body: videoFormData
         });
+
+        const videoData = await videoResponse.json();
+
+        // If video ingest returns RECEIVED status, show success modal
+        if (videoData.status === 'RECEIVED') {
+          setIsModalOpen(false);
+          setShowSuccessModal(true);
+          // Reset form
+          setFormData({
+            videoUrl: '',
+            videoFile: null,
+            photos: [],
+            destination: '',
+            tripType: 'adventure',
+            tripDescription: ''
+          });
+          return; // Exit early, don't send to n8n webhook
+        }
       }
 
       // Send to n8n webhook
