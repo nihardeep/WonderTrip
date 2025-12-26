@@ -17,6 +17,7 @@ const Discover = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [tripType, setTripType] = useState('video'); // 'video' or 'photos'
   const [formData, setFormData] = useState({
     videoUrl: '',
@@ -756,6 +757,7 @@ const Discover = () => {
       <TripSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
+        isProcessing={isProcessing}
       />
 
       <ChatBot />
