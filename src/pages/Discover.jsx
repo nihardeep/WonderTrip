@@ -85,41 +85,11 @@ const Discover = () => {
     }
 
     try {
-      // If video is uploaded, send to video ingest endpoint first
+      // If video is uploaded, show processing state immediately
       if (formData.videoFile) {
-        // Show processing modal immediately
         setIsModalOpen(false);
         setShowSuccessModal(true);
         setIsProcessing(true);
-
-        const videoFormData = new FormData();
-        videoFormData.append('file', formData.videoFile);              // MUST be "file"
-        videoFormData.append('email', user?.email || '');              // REQUIRED
-        videoFormData.append('source', 'website');                     // REQUIRED
-        videoFormData.append('user_destination', formData.destination); // optional
-        videoFormData.append('user_trip_type', formData.tripType);     // optional
-
-        const videoResponse = await fetch('https://fern-exergonic-compositionally.ngrok-free.dev/video/ingest', {
-          method: 'POST',
-          body: videoFormData
-        });
-
-        const videoData = await videoResponse.json();
-
-        // If video ingest returns RECEIVED status, transition to success state
-        if (videoData.status === 'RECEIVED') {
-          setIsProcessing(false);
-          // Reset form
-          setFormData({
-            videoUrl: '',
-            videoFile: null,
-            photos: [],
-            destination: '',
-            tripType: 'adventure',
-            tripDescription: ''
-          });
-          return; // Exit early, don't send to n8n webhook
-        }
       }
 
       // Send to n8n webhook
@@ -130,8 +100,15 @@ const Discover = () => {
       });
 
       if (response.ok) {
-        setIsModalOpen(false);
-        setShowSuccessModal(true);
+        // Stop processing animation if it was running
+        if (formData.videoFile) {
+          setIsProcessing(false);
+        } else {
+          // For non-video uploads, show the success modal now
+          setIsModalOpen(false);
+          setShowSuccessModal(true);
+        }
+
         // Reset form
         setFormData({
           videoUrl: '',
@@ -142,10 +119,22 @@ const Discover = () => {
           tripDescription: ''
         });
       } else {
+        // Handle error - if modal was open, close it
+        if (formData.videoFile) {
+          setShowSuccessModal(false);
+          setIsProcessing(false);
+          setIsModalOpen(true); // Re-open form
+        }
         alert('Failed to start trip generation. Please try again.');
       }
     } catch (error) {
       console.error('Error sending data to webhook:', error);
+      // Handle error - if modal was open, close it
+      if (formData.videoFile) {
+        setShowSuccessModal(false);
+        setIsProcessing(false);
+        setIsModalOpen(true); // Re-open form
+      }
       alert('Connection error. Please try again.');
     }
   };
