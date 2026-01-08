@@ -93,7 +93,7 @@ const Discover = () => {
       }
 
       // Send to n8n webhook
-      const response = await fetch('https://rahulmohan.app.n8n.cloud/webhook-test/ac5d8037-976d-4384-8622-a08566629e3e', {
+      const response = await fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
         method: 'POST',
         body: formDataToSend,
         // Note: Content-Type header is set automatically by browser for FormData
