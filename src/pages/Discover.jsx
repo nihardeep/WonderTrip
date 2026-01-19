@@ -30,6 +30,7 @@ const Discover = () => {
 
   const { user } = useAuth();
   const navigate = useNavigate();
+  const chatBotRef = useRef(null);
 
   // Handle opening the modal with auth check
   const handleOpenModal = () => {
@@ -84,7 +85,7 @@ const Discover = () => {
       });
     }
 
-    const chatBotRef = useRef(null);
+
 
     try {
       // Show processing state immediately for both video and photos
@@ -111,15 +112,36 @@ const Discover = () => {
       // Handle array response from n8n
       const responseItem = Array.isArray(data) ? data[0] : data;
       const responseStatus = responseItem?.status || responseItem?.json?.status;
-      const responseMessage = responseItem?.message || responseItem?.json?.message;
 
-      // Check for chat/question response first
-      if (responseMessage &&
-        (responseStatus !== 'success' || responseMessage.includes('?'))) {
-        // If there's a message that looks like a question or status is not success but has message
+      // Handle single message (legacy/simple structure)
+      const singleMessage = responseItem?.message || responseItem?.json?.message;
+
+      // Handle multiple messages structure (new structure)
+      const multipleMessages = responseItem?.messages || responseItem?.json?.messages;
+
+      // Check for multiple messages first
+      if (multipleMessages && Array.isArray(multipleMessages) && multipleMessages.length > 0) {
         setIsProcessing(false);
         setShowSuccessModal(false);
-        chatBotRef.current?.openWithBotMessage(responseMessage);
+
+        // Open chat immediately
+        chatBotRef.current?.openWithBotMessage("I found some things we need to double check:");
+
+        // Add each message with a small delay to feel natural, or just add them all
+        multipleMessages.forEach((msg, index) => {
+          setTimeout(() => {
+            chatBotRef.current?.openWithBotMessage(msg.message);
+          }, (index + 1) * 500);
+        });
+        return;
+      }
+
+      // Check for single chat/question response
+      if (singleMessage &&
+        (responseStatus !== 'success' || singleMessage.includes('?'))) {
+        setIsProcessing(false);
+        setShowSuccessModal(false);
+        chatBotRef.current?.openWithBotMessage(singleMessage);
         return;
       }
 
