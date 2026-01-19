@@ -41,11 +41,11 @@ const TripSuccessModal = ({ isOpen, onClose, isProcessing = false }) => {
                             </motion.div>
 
                             <h3 className="text-2xl font-display font-bold text-gray-900 mb-3">
-                                Processing Your Video...
+                                Processing Your Media...
                             </h3>
 
                             <p className="text-gray-600 mb-6 leading-relaxed">
-                                Our AI is analyzing your video to create an amazing trip itinerary. This may take a few moments.
+                                Our AI is analyzing your content to create an amazing trip itinerary. This may take a few moments.
                             </p>
 
                             {/* Animated dots */}

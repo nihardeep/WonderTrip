@@ -1,15 +1,27 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './Button';
 
-const ChatBot = () => {
+const ChatBot = forwardRef((props, ref) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([
         { id: 1, text: "Hi there! 👋 How can I help you plan your next adventure today?", sender: 'bot' }
     ]);
     const [inputText, setInputText] = useState('');
     const messagesEndRef = useRef(null);
+
+    useImperativeHandle(ref, () => ({
+        openWithBotMessage: (text) => {
+            setIsOpen(true);
+            const newMessage = {
+                id: Date.now(),
+                text,
+                sender: 'bot'
+            };
+            setMessages(prev => [...prev, newMessage]);
+        }
+    }));
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -32,15 +44,7 @@ const ChatBot = () => {
         setMessages(prev => [...prev, newMessage]);
         setInputText('');
 
-        // Simulate bot response
-        setTimeout(() => {
-            const botResponse = {
-                id: Date.now() + 1,
-                text: "Thanks for your message! Our AI travel assistants are currently busy, but please describe your dream trip and we'll help you get started.",
-                sender: 'bot'
-            };
-            setMessages(prev => [...prev, botResponse]);
-        }, 1000);
+        // Simulate bot response logic could be here or handled externally
     };
 
     return (
@@ -86,8 +90,8 @@ const ChatBot = () => {
                                 >
                                     <div
                                         className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${message.sender === 'user'
-                                                ? 'bg-purple-600 text-white rounded-br-none'
-                                                : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-none'
+                                            ? 'bg-purple-600 text-white rounded-br-none'
+                                            : 'bg-white text-gray-700 shadow-sm border border-gray-100 rounded-bl-none'
                                             }`}
                                     >
                                         {message.text}
@@ -126,8 +130,8 @@ const ChatBot = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
                 className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg z-50 flex items-center justify-center transition-all duration-300 ${isOpen
-                        ? 'bg-gray-800 text-white rotate-90'
-                        : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-purple-500/30'
+                    ? 'bg-gray-800 text-white rotate-90'
+                    : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:shadow-purple-500/30'
                     }`}
             >
                 {isOpen ? (
@@ -138,6 +142,8 @@ const ChatBot = () => {
             </motion.button>
         </>
     );
-};
+});
+
+ChatBot.displayName = 'ChatBot';
 
 export default ChatBot;

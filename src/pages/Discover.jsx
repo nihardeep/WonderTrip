@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus, X, Upload, Video, Image as ImageIcon } from 'lucide-react';
@@ -84,9 +84,11 @@ const Discover = () => {
       });
     }
 
+    const chatBotRef = useRef(null);
+
     try {
-      // If video is uploaded, show processing state immediately
-      if (formData.videoFile) {
+      // Show processing state immediately for both video and photos
+      if (formData.videoFile || (formData.photos && formData.photos.length > 0)) {
         setIsModalOpen(false);
         setShowSuccessModal(true);
         setIsProcessing(true);
@@ -96,18 +98,36 @@ const Discover = () => {
       const response = await fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
         method: 'POST',
         body: formDataToSend,
-        // Note: Content-Type header is set automatically by browser for FormData
       });
 
-      if (response.ok) {
-        // Stop processing animation if it was running
-        if (formData.videoFile) {
-          setIsProcessing(false);
-        } else {
-          // For non-video uploads, show the success modal now
-          setIsModalOpen(false);
-          setShowSuccessModal(true);
-        }
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await response.json();
+      } else {
+        data = await response.text();
+      }
+
+      // Handle array response from n8n
+      const responseItem = Array.isArray(data) ? data[0] : data;
+      const responseStatus = responseItem?.status || responseItem?.json?.status;
+      const responseMessage = responseItem?.message || responseItem?.json?.message;
+
+      // Check for chat/question response first
+      if (responseMessage &&
+        (responseStatus !== 'success' || responseMessage.includes('?'))) {
+        // If there's a message that looks like a question or status is not success but has message
+        setIsProcessing(false);
+        setShowSuccessModal(false);
+        chatBotRef.current?.openWithBotMessage(responseMessage);
+        return;
+      }
+
+      if (response.ok || responseStatus === 'success') {
+        // Stop processing animation
+        setIsProcessing(false);
+        // Ensure success modal is open (it might be already open)
+        setShowSuccessModal(true);
 
         // Reset form
         setFormData({
@@ -119,22 +139,17 @@ const Discover = () => {
           tripDescription: ''
         });
       } else {
-        // Handle error - if modal was open, close it
-        if (formData.videoFile) {
-          setShowSuccessModal(false);
-          setIsProcessing(false);
-          setIsModalOpen(true); // Re-open form
-        }
+        // Handle error
+        setShowSuccessModal(false);
+        setIsProcessing(false);
+        setIsModalOpen(true); // Re-open form
         alert('Failed to start trip generation. Please try again.');
       }
     } catch (error) {
       console.error('Error sending data to webhook:', error);
-      // Handle error - if modal was open, close it
-      if (formData.videoFile) {
-        setShowSuccessModal(false);
-        setIsProcessing(false);
-        setIsModalOpen(true); // Re-open form
-      }
+      setShowSuccessModal(false);
+      setIsProcessing(false);
+      setIsModalOpen(true); // Re-open form
       alert('Connection error. Please try again.');
     }
   };
@@ -753,7 +768,7 @@ const Discover = () => {
         isProcessing={isProcessing}
       />
 
-      <ChatBot />
+      <ChatBot ref={chatBotRef} />
     </div>
   );
 };
