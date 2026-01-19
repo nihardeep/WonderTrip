@@ -60,7 +60,10 @@ const Discover = () => {
 
 
   const handleSearch = async (e) => {
-    if (e.key === 'Enter' && selectedDestination.trim()) {
+    // If triggered by keydown, only proceed on Enter
+    if (e && e.key && e.key !== 'Enter') return;
+
+    if (selectedDestination.trim()) {
       try {
         await fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
           method: 'POST',
@@ -380,16 +383,26 @@ const Discover = () => {
                 </div>
 
                 {/* Rooms */}
-                <div className="w-24 relative">
+                <div className="w-24 relative border-r border-gray-200">
                   <div className="absolute left-2 top-1 text-xs text-gray-500 font-medium">Rooms</div>
                   <input
                     type="number"
                     min="1"
-                    className="w-full pl-3 pt-4 pb-1 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none text-sm"
+                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none text-sm"
                     value={rooms}
                     onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
                   />
                 </div>
+
+                {/* Search Button */}
+                <button
+                  onClick={() => handleSearch()}
+                  className="p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-r-lg transition-colors flex items-center justify-center"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
               </div>
             </div>
 
@@ -407,13 +420,23 @@ const Discover = () => {
                 </div>
               )
             ) : (
-              <Button
-                size="sm"
-                className="bg-purple-600 hover:bg-purple-700 text-white"
-                onClick={() => setShowAuthModal(true)}
-              >
-                Login
-              </Button>
+              <div className="flex items-center space-x-3">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => navigate('/login')}
+                  className="text-gray-700 hover:text-purple-600 font-medium"
+                >
+                  Login
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all"
+                  onClick={() => navigate('/signup')}
+                >
+                  Sign Up
+                </Button>
+              </div>
             )}
           </div>
         </div>
