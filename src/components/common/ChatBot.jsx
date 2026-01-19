@@ -45,6 +45,39 @@ const ChatBot = forwardRef((props, ref) => {
         setInputText('');
 
         // Simulate bot response logic could be here or handled externally
+
+        // Send to n8n
+        try {
+            fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    intent: 'Chatbox',
+                    query: inputText,
+                    // email: user?.email // user is not available in props currently, simplifying
+                }),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    // Determine response text
+                    const responseItem = Array.isArray(data) ? data[0] : data;
+                    const reply = responseItem?.message || responseItem?.json?.message || responseItem?.output || "I received your message.";
+
+                    const botMessage = {
+                        id: Date.now() + 1,
+                        text: reply,
+                        sender: 'bot'
+                    };
+                    setMessages(prev => [...prev, botMessage]);
+                })
+                .catch(err => {
+                    console.error("Error sending chat:", err);
+                });
+        } catch (error) {
+            console.error("Error sending chat:", error);
+        }
     };
 
     return (
