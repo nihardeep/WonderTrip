@@ -766,6 +766,7 @@ const Discover = () => {
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         isProcessing={isProcessing}
+        tripType={tripType}
       />
 
       <ChatBot ref={chatBotRef} />

@@ -3,10 +3,16 @@ import { X, CheckCircle, Loader2, ArrowRight } from 'lucide-react';
 import Button from './Button';
 import { useNavigate } from 'react-router-dom';
 
-const TripSuccessModal = ({ isOpen, onClose, isProcessing = false }) => {
+const TripSuccessModal = ({ isOpen, onClose, isProcessing = false, tripType = 'video' }) => {
     const navigate = useNavigate();
 
     if (!isOpen) return null;
+
+    const isVideo = tripType === 'video';
+    const title = isVideo ? 'Processing Your Video...' : 'Processing Your Images...';
+    const description = isVideo
+        ? 'Our AI is analyzing your video to create an amazing trip itinerary. This may take a few moments.'
+        : 'Our AI is analyzing your images to create an amazing trip itinerary. This may take a few moments.';
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -41,11 +47,11 @@ const TripSuccessModal = ({ isOpen, onClose, isProcessing = false }) => {
                             </motion.div>
 
                             <h3 className="text-2xl font-display font-bold text-gray-900 mb-3">
-                                Processing Your Media...
+                                {title}
                             </h3>
 
                             <p className="text-gray-600 mb-6 leading-relaxed">
-                                Our AI is analyzing your content to create an amazing trip itinerary. This may take a few moments.
+                                {description}
                             </p>
 
                             {/* Animated dots */}
