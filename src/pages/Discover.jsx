@@ -14,6 +14,8 @@ const Discover = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const [selectedDestination, setSelectedDestination] = useState(searchQuery || '');
+  const [adults, setAdults] = useState(1);
+  const [rooms, setRooms] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -68,6 +70,8 @@ const Discover = () => {
           body: JSON.stringify({
             intent: 'Search',
             query: selectedDestination,
+            adults,
+            rooms,
             email: user?.email || ''
           }),
         });
@@ -344,30 +348,73 @@ const Discover = () => {
             </Link>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-xl mx-8">
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+            <div className="flex-1 max-w-2xl mx-8">
+              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-purple-400 transition-colors">
+                {/* Destination */}
+                <div className="flex-1 relative border-r border-gray-200">
+                  <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Where to?"
+                    className="w-full pl-10 pr-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none"
+                    value={selectedDestination}
+                    onChange={(e) => setSelectedDestination(e.target.value)}
+                    onKeyDown={handleSearch}
+                  />
                 </div>
-                <input
-                  type="text"
-                  placeholder="Search trips, creators, destinations..."
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  value={selectedDestination}
-                  onChange={(e) => setSelectedDestination(e.target.value)}
-                  onKeyDown={handleSearch}
-                />
+
+                {/* Adults */}
+                <div className="w-24 border-r border-gray-200 relative">
+                  <div className="absolute left-2 top-1 text-xs text-gray-500 font-medium">Adults</div>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none text-sm"
+                    value={adults}
+                    onChange={(e) => setAdults(parseInt(e.target.value) || 1)}
+                  />
+                </div>
+
+                {/* Rooms */}
+                <div className="w-24 relative">
+                  <div className="absolute left-2 top-1 text-xs text-gray-500 font-medium">Rooms</div>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full pl-3 pt-4 pb-1 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none text-sm"
+                    value={rooms}
+                    onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
+                  />
+                </div>
               </div>
             </div>
 
             {/* User Profile */}
-            <img
-              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces"
-              alt="User profile"
-              className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
-            />
+            {user ? (
+              user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt="User profile"
+                  className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+                />
+              ) : (
+                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all text-purple-600">
+                  <User className="w-6 h-6" />
+                </div>
+              )
+            ) : (
+              <Button
+                size="sm"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+                onClick={() => setShowAuthModal(true)}
+              >
+                Login
+              </Button>
+            )}
           </div>
         </div>
       </header>
