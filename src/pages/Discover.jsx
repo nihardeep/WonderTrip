@@ -724,6 +724,18 @@ const Discover = () => {
                 </div>
               </div>
 
+              {/* Trip Date Field */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  When did you visit?
+                </label>
+                <Input
+                  type="date"
+                  value={formData.tripDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, tripDate: e.target.value }))}
+                />
+              </div>
+
               {/* Video Option */}
               {tripType === 'video' && (
                 <div className="space-y-4">
