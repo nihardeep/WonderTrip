@@ -1,18 +1,45 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [adults, setAdults] = useState(1);
+  const [rooms, setRooms] = useState(1);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate('/discover');
+      try {
+        // Send search intent to n8n
+        await fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            intent: 'Search',
+            query: searchQuery,
+            adults: parseInt(adults),
+            rooms: parseInt(rooms),
+            email: user?.email || ''
+          }),
+        });
+
+        // For UI feedback, we could redirect to the feed with the search query, 
+        // effectively mirroring the previous behavior but with the n8n side effect.
+        navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+      } catch (error) {
+        console.error('Error sending search:', error);
+        // Navigate anyway on error
+        navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+      }
     }
   };
 
@@ -44,23 +71,58 @@ const Hero = () => {
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-6">
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
-                <Search className="w-5 h-5 text-gray-400" />
+          <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-6">
+            <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
+              {/* Destination Input */}
+              <div className="flex-1 relative border-b md:border-b-0 md:border-r border-gray-200">
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
+                  <Search className="w-5 h-5 text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Where to?"
+                  className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                />
               </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for your next adventure..."
-                className="w-full pl-12 pr-4 py-4 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-lg text-lg"
-              />
+
+              {/* Adults Input */}
+              <div className="w-full md:w-32 relative border-b md:border-b-0 md:border-r border-gray-200">
+                <div className="absolute left-3 top-2 text-xs text-gray-500 font-medium">Adults</div>
+                <input
+                  type="number"
+                  min="1"
+                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 text-base"
+                  value={adults}
+                  onChange={(e) => setAdults(e.target.value)}
+                />
+              </div>
+
+              {/* Rooms Input */}
+              <div className="w-full md:w-32 relative">
+                <div className="absolute left-3 top-2 text-xs text-gray-500 font-medium">Rooms</div>
+                <input
+                  type="number"
+                  min="1"
+                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 text-base"
+                  value={rooms}
+                  onChange={(e) => setRooms(e.target.value)}
+                />
+              </div>
+
+              {/* Search Button */}
+              <button
+                type="submit"
+                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 transition-colors duration-200 flex items-center justify-center"
+              >
+                Search
+              </button>
             </div>
           </form>
 
           {/* Call-to-Action Button */}
-          <Link to="/discover">
+          <Link to="/">
             <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg transition-colors duration-200 shadow-lg text-lg">
               Discover Destinations
             </button>

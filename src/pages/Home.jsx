@@ -98,7 +98,7 @@ const Home = () => {
             Join thousands of travelers who've discovered their dream destinations with WonderTrip. Your next adventure awaits!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/destinations">
+            <Link to="/">
               <Button size="lg" className="bg-white text-primary-600 hover:bg-gray-100">
                 Explore Destinations
               </Button>
