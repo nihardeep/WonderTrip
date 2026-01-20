@@ -27,7 +27,9 @@ const Discover = () => {
     photos: [],
     destination: '',
     tripType: 'adventure',
-    tripDescription: ''
+    tripType: 'adventure',
+    tripDescription: '',
+    tripDate: '' // Initialize tripDate
   });
 
   const { user } = useAuth();
@@ -102,7 +104,9 @@ const Discover = () => {
     formDataToSend.append('email', user?.email || '');
     formDataToSend.append('tripType', formData.tripType);
     formDataToSend.append('destination', formData.destination);
+    formDataToSend.append('destination', formData.destination);
     formDataToSend.append('tripDescription', formData.tripDescription);
+    formDataToSend.append('tripDate', formData.tripDate); // Add date to payload
     formDataToSend.append('intent', 'Create a new trip');
     formDataToSend.append('type', formData.tripType === 'photos' ? 'Image' : 'video');
 
