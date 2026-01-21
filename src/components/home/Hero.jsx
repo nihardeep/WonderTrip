@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Search } from 'lucide-react';
+import { Search, Calendar } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 const Hero = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [adults, setAdults] = useState(1);
   const [rooms, setRooms] = useState(1);
   const navigate = useNavigate();
@@ -23,6 +25,8 @@ const Hero = () => {
           body: JSON.stringify({
             intent: 'Search',
             query: searchQuery,
+            startDate,
+            endDate,
             adults: parseInt(adults),
             rooms: parseInt(rooms),
             email: user?.email || ''
@@ -70,10 +74,10 @@ const Hero = () => {
           </p>
 
           {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-6">
+          <form onSubmit={handleSearch} className="max-w-5xl mx-auto mb-6">
             <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg overflow-hidden">
               {/* Destination Input */}
-              <div className="flex-1 relative border-b md:border-b-0 md:border-r border-gray-200">
+              <div className="flex-[2] relative border-b md:border-b-0 md:border-r border-gray-200">
                 <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                   <Search className="w-5 h-5 text-gray-400" />
                 </div>
@@ -82,12 +86,34 @@ const Hero = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Where to?"
-                  className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 text-lg"
+                  className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 text-base"
+                />
+              </div>
+
+              {/* Check-in Date */}
+              <div className="flex-1 relative border-b md:border-b-0 md:border-r border-gray-200 min-w-[140px]">
+                <div className="absolute left-3 top-2 text-xs text-gray-500 font-medium">Check-in</div>
+                <input
+                  type="date"
+                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                />
+              </div>
+
+              {/* Check-out Date */}
+              <div className="flex-1 relative border-b md:border-b-0 md:border-r border-gray-200 min-w-[140px]">
+                <div className="absolute left-3 top-2 text-xs text-gray-500 font-medium">Check-out</div>
+                <input
+                  type="date"
+                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
                 />
               </div>
 
               {/* Adults Input */}
-              <div className="w-full md:w-32 relative border-b md:border-b-0 md:border-r border-gray-200">
+              <div className="w-full md:w-24 relative border-b md:border-b-0 md:border-r border-gray-200">
                 <div className="absolute left-3 top-2 text-xs text-gray-500 font-medium">Adults</div>
                 <input
                   type="number"
@@ -99,7 +125,7 @@ const Hero = () => {
               </div>
 
               {/* Rooms Input */}
-              <div className="w-full md:w-32 relative">
+              <div className="w-full md:w-24 relative">
                 <div className="absolute left-3 top-2 text-xs text-gray-500 font-medium">Rooms</div>
                 <input
                   type="number"
@@ -113,7 +139,7 @@ const Hero = () => {
               {/* Search Button */}
               <button
                 type="submit"
-                className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 transition-colors duration-200 flex items-center justify-center"
+                className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 transition-colors duration-200 flex items-center justify-center whitespace-nowrap"
               >
                 Search
               </button>

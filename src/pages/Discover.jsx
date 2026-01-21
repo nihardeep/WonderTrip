@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus, X, Upload, Video, Image as ImageIcon } from 'lucide-react';
+import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus, X, Upload, Video, Image as ImageIcon, Calendar } from 'lucide-react';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
@@ -16,6 +16,8 @@ const Discover = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
   const [selectedDestination, setSelectedDestination] = useState(searchQuery || '');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [adults, setAdults] = useState(1);
   const [rooms, setRooms] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,6 +78,8 @@ const Discover = () => {
           body: JSON.stringify({
             intent: 'Search',
             query: selectedDestination,
+            startDate,
+            endDate,
             adults,
             rooms,
             email: user?.email || ''
@@ -407,10 +411,10 @@ const Discover = () => {
 
           {/* Search Row */}
           <div className="mt-4 flex justify-center pb-2">
-            <div className="w-full max-w-4xl">
-              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-primary-400 transition-colors">
+            <div className="w-full max-w-6xl">
+              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-primary-400 transition-colors hidden md:flex">
                 {/* Destination */}
-                <div className="flex-1 relative border-r border-gray-200">
+                <div className="flex-[2] relative border-r border-gray-200">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -426,25 +430,47 @@ const Discover = () => {
                   />
                 </div>
 
+                {/* Check-in */}
+                <div className="flex-1 relative border-r border-gray-200 min-w-[120px]">
+                  <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Check-in</div>
+                  <input
+                    type="date"
+                    className="w-full pl-2 pt-3 pb-1 border-none focus:ring-0 text-sm"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+
+                {/* Check-out */}
+                <div className="flex-1 relative border-r border-gray-200 min-w-[120px]">
+                  <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Check-out</div>
+                  <input
+                    type="date"
+                    className="w-full pl-2 pt-3 pb-1 border-none focus:ring-0 text-sm"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+
                 {/* Adults */}
-                <div className="w-24 border-r border-gray-200 relative">
-                  <div className="absolute left-2 top-1 text-xs text-gray-500 font-medium">Adults</div>
+                <div className="w-20 border-r border-gray-200 relative">
+                  <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Adults</div>
                   <input
                     type="number"
                     min="1"
-                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none text-sm"
+                    className="w-full pl-3 pt-3 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none text-sm"
                     value={adults}
                     onChange={(e) => setAdults(parseInt(e.target.value) || 1)}
                   />
                 </div>
 
                 {/* Rooms */}
-                <div className="w-24 relative border-r border-gray-200">
-                  <div className="absolute left-2 top-1 text-xs text-gray-500 font-medium">Rooms</div>
+                <div className="w-20 relative border-r border-gray-200">
+                  <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Rooms</div>
                   <input
                     type="number"
                     min="1"
-                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none text-sm"
+                    className="w-full pl-3 pt-3 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none text-sm"
                     value={rooms}
                     onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
                   />
@@ -460,6 +486,8 @@ const Discover = () => {
                   </svg>
                 </button>
               </div>
+
+              {/* Mobile View Placeholder or simplified view could go here if needed, but keeping consistent with existing structure */}
             </div>
           </div>
         </div>
