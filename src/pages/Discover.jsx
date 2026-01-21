@@ -334,7 +334,7 @@ const Discover = () => {
   ];
 
   const navigationItems = [
-    { icon: Home, label: 'Home', path: '/' },
+    { icon: Home, label: 'Home', path: '/discover' },
     { icon: Globe, label: 'Discover', path: '/discover', active: true },
     { icon: MapPin, label: 'My Trips', path: '/profile' },
     { icon: Users, label: 'Subscriptions', path: '/subscriptions' },
