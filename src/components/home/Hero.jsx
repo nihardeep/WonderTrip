@@ -15,7 +15,7 @@ const Hero = () => {
     if (searchQuery.trim()) {
       try {
         // Send search intent to n8n
-        await fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+        await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
