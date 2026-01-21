@@ -56,7 +56,7 @@ export const API_ENDPOINTS = {
 
 export const NAV_LINKS = [
 
-  { name: 'Home', path: '/discover' },
+  { name: 'Home', path: '/' },
 
   { name: 'Destinations', path: '/destinations' },
 
