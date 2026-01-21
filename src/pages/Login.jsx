@@ -90,7 +90,7 @@ const Login = () => {
         try {
           loginSuccess({ email: formData.email, name: 'User' }); // Minimal user object
           // alert('Login Success! Redirecting to Discover...'); // Visual confirmation
-          navigate('/discover');
+          navigate('/');
         } catch (err) {
           alert(`Error processing login: ${err.message}`);
           console.error(err);

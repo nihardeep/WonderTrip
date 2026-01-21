@@ -333,8 +333,8 @@ const Discover = () => {
   ];
 
   const navigationItems = [
-    { icon: Home, label: 'Home', path: '/' },
-    { icon: Globe, label: 'Discover', path: '/discover', active: true },
+    { icon: Home, label: 'Home', path: '/', active: true },
+    { icon: Globe, label: 'Discover', path: '/discover' },
     { icon: MapPin, label: 'My Trips', path: '/profile' },
     { icon: Users, label: 'Subscriptions', path: '/subscriptions' },
     { icon: User, label: 'Profile', path: '/profile' }
@@ -354,8 +354,16 @@ const Discover = () => {
               <span className="text-xl font-display font-bold text-gray-900">WonderTrip</span>
             </Link>
 
+            {/* Navigation Links */}
+            <div className="hidden md:flex items-center space-x-8 mx-8">
+              <Link to="/" className="text-gray-900 font-medium hover:text-purple-600 transition-colors">Home</Link>
+              <Link to="/destinations" className="text-gray-600 font-medium hover:text-purple-600 transition-colors">Destinations</Link>
+              <Link to="/about" className="text-gray-600 font-medium hover:text-purple-600 transition-colors">About</Link>
+              <Link to="/contact" className="text-gray-600 font-medium hover:text-purple-600 transition-colors">Contact</Link>
+            </div>
+
             {/* Search Bar */}
-            <div className="flex-1 max-w-2xl mx-8">
+            <div className="flex-1 max-w-2xl">
               <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-purple-400 transition-colors">
                 {/* Destination */}
                 <div className="flex-1 relative border-r border-gray-200">
