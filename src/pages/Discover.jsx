@@ -9,6 +9,7 @@ import Input from '../components/common/Input';
 import AuthModal from '../components/common/AuthModal';
 import TripSuccessModal from '../components/common/TripSuccessModal';
 import ChatBot from '../components/common/ChatBot';
+import Footer from '../components/common/Footer';
 
 const Discover = () => {
   const [searchParams] = useSearchParams();
@@ -491,7 +492,7 @@ const Discover = () => {
             </Link>
 
             {/* New AI Trip CTA */}
-            <div className="mt-6 mx-4 p-6 rounded-2xl bg-gradient-to-br from-[#4158D0] to-[#C850C0] text-white text-center shadow-lg relative overflow-hidden group">
+            <div className="mt-6 mx-4 p-6 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 text-white text-center shadow-lg relative overflow-hidden group">
               {/* Abstract decorative elements */}
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
               <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 rounded-full bg-pink-500 opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
@@ -634,277 +635,283 @@ const Discover = () => {
               ))}
             </div>
           </div>
-        </main>
-
-        {/* Right Sidebar */}
-        <aside className="w-80 bg-white border-l border-gray-200 p-6 sticky top-16 h-screen overflow-y-auto">
-          {/* Trending Creators */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Creators</h3>
-            <div className="space-y-3">
-              {trendingCreators.map((creator, index) => (
-                <div key={index} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
-                  <img
-                    src={
-                      creator.name === 'Alice Travel'
-                        ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces'
-                        : creator.name === 'Wanderlust Ben'
-                          ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces'
-                          : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
-                    }
-                    alt={creator.name}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <span className="font-medium text-gray-900">{creator.name}</span>
-                </div>
-              ))}
-            </div>
+          <div className="mt-12">
+            <Footer />
           </div>
-
-          {/* Trending Destinations */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Destinations</h3>
-            <div className="space-y-2">
-              {trendingDestinations.map((destination, index) => (
-                <div
-                  key={index}
-                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
-                  onClick={() => setSelectedDestination(destination.split(',')[0])}
-                >
-                  <Globe className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-700">{destination}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-
-        </aside>
       </div>
+    </main>
 
-      {/* AI Trip Generation Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-display font-bold text-gray-900">Create AI Trip</h2>
+        {/* Right Sidebar */ }
+  <aside className="w-80 bg-white border-l border-gray-200 p-6 sticky top-16 h-screen overflow-y-auto">
+    {/* Trending Creators */}
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Creators</h3>
+      <div className="space-y-3">
+        {trendingCreators.map((creator, index) => (
+          <div key={index} className="flex items-center space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors">
+            <img
+              src={
+                creator.name === 'Alice Travel'
+                  ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces'
+                  : creator.name === 'Wanderlust Ben'
+                    ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces'
+                    : 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
+              }
+              alt={creator.name}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <span className="font-medium text-gray-900">{creator.name}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Trending Destinations */}
+    <div className="mb-8">
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">Trending Destinations</h3>
+      <div className="space-y-2">
+        {trendingDestinations.map((destination, index) => (
+          <div
+            key={index}
+            className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+            onClick={() => setSelectedDestination(destination.split(',')[0])}
+          >
+            <Globe className="w-4 h-4 text-gray-400" />
+            <span className="text-gray-700">{destination}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+
+  </aside>
+      </div >
+
+  {/* AI Trip Generation Modal */ }
+{
+  isModalOpen && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <h2 className="text-2xl font-display font-bold text-gray-900">Create AI Trip</h2>
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Trip Type Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">
+              Choose Content Type
+            </label>
+            <div className="grid grid-cols-2 gap-4">
               <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-600 transition-colors"
+                type="button"
+                onClick={() => setTripType('video')}
+                className={`p-4 border-2 rounded-lg transition-all ${tripType === 'video'
+                  ? 'border-purple-600 bg-purple-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <X className="w-6 h-6" />
+                <Video className={`w-6 h-6 mx-auto mb-2 ${tripType === 'video' ? 'text-purple-600' : 'text-gray-400'}`} />
+                <span className={`font-medium ${tripType === 'video' ? 'text-purple-600' : 'text-gray-700'}`}>
+                  Create from Video
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setTripType('photos')}
+                className={`p-4 border-2 rounded-lg transition-all ${tripType === 'photos'
+                  ? 'border-purple-600 bg-purple-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
+              >
+                <ImageIcon className={`w-6 h-6 mx-auto mb-2 ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-400'}`} />
+                <span className={`font-medium ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-700'}`}>
+                  Create from Photos
+                </span>
               </button>
             </div>
+          </div>
 
-            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-              {/* Trip Type Selection */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
-                  Choose Content Type
-                </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    type="button"
-                    onClick={() => setTripType('video')}
-                    className={`p-4 border-2 rounded-lg transition-all ${tripType === 'video'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <Video className={`w-6 h-6 mx-auto mb-2 ${tripType === 'video' ? 'text-purple-600' : 'text-gray-400'}`} />
-                    <span className={`font-medium ${tripType === 'video' ? 'text-purple-600' : 'text-gray-700'}`}>
-                      Create from Video
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setTripType('photos')}
-                    className={`p-4 border-2 rounded-lg transition-all ${tripType === 'photos'
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                  >
-                    <ImageIcon className={`w-6 h-6 mx-auto mb-2 ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-400'}`} />
-                    <span className={`font-medium ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-700'}`}>
-                      Create from Photos
-                    </span>
-                  </button>
-                </div>
-              </div>
+          {/* Trip Date Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              When did you visit?
+            </label>
+            <Input
+              type="date"
+              value={formData.tripDate}
+              onChange={(e) => setFormData(prev => ({ ...prev, tripDate: e.target.value }))}
+            />
+          </div>
 
-              {/* Trip Date Field */}
+          {/* Video Option */}
+          {tripType === 'video' && (
+            <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  When did you visit?
-                </label>
-                <Input
-                  type="date"
-                  value={formData.tripDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, tripDate: e.target.value }))}
-                />
-              </div>
-
-              {/* Video Option */}
-              {tripType === 'video' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Upload Video or Instagram/YouTube URL
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="Paste Instagram or YouTube URL..."
-                      value={formData.videoUrl}
-                      onChange={(e) => setFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
-                    />
-                  </div>
-                  <div className="text-center text-gray-500 text-sm">OR</div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Upload Video File
-                    </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
-                      <input
-                        type="file"
-                        accept="video/*"
-                        onChange={(e) => handleFileChange(e, 'video')}
-                        className="hidden"
-                        id="video-upload"
-                      />
-                      <label htmlFor="video-upload" className="cursor-pointer">
-                        <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">
-                          Click to upload or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formData.videoFile ? formData.videoFile.name : 'MP4, MOV, AVI (max 500MB)'}
-                        </p>
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Photos Option */}
-              {tripType === 'photos' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Upload Photo Collage
-                  </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={(e) => handleFileChange(e, 'photos')}
-                      className="hidden"
-                      id="photos-upload"
-                    />
-                    <label htmlFor="photos-upload" className="cursor-pointer">
-                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">
-                        Click to upload or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {formData.photos.length > 0
-                          ? `${formData.photos.length} photo(s) selected`
-                          : 'JPG, PNG, HEIC (max 10MB each)'}
-                      </p>
-                    </label>
-                  </div>
-                  {formData.photos.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2 mt-4">
-                      {formData.photos.slice(0, 6).map((photo, index) => (
-                        <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                          <img
-                            src={URL.createObjectURL(photo)}
-                            alt={`Preview ${index + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Trip Description */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Describe your Trip in few words
-                </label>
-                <textarea
-                  placeholder="e.g. A relaxing beach vacation with some hiking..."
-                  value={formData.tripDescription}
-                  onChange={(e) => setFormData(prev => ({ ...prev, tripDescription: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none min-h-[100px]"
-                />
-              </div>
-
-              {/* Trip Destination */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Trip Destination
+                  Upload Video or Instagram/YouTube URL
                 </label>
                 <Input
                   type="text"
-                  placeholder="Enter destination (e.g., Tokyo, Japan)"
-                  value={formData.destination}
-                  onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
-                  required
+                  placeholder="Paste Instagram or YouTube URL..."
+                  value={formData.videoUrl}
+                  onChange={(e) => setFormData(prev => ({ ...prev, videoUrl: e.target.value }))}
                 />
               </div>
-
-              {/* Trip Type */}
+              <div className="text-center text-gray-500 text-sm">OR</div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Trip Type
+                  Upload Video File
                 </label>
-                <select
-                  value={formData.tripType}
-                  onChange={(e) => setFormData(prev => ({ ...prev, tripType: e.target.value }))}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none"
-                  required
-                >
-                  <option value="adventure">Adventure</option>
-                  <option value="relaxation">Relaxation</option>
-                  <option value="cultural">Cultural</option>
-                  <option value="beach">Beach</option>
-                  <option value="mountain">Mountain</option>
-                  <option value="city">City</option>
-                  <option value="nature">Nature</option>
-                  <option value="luxury">Luxury</option>
-                </select>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => handleFileChange(e, 'video')}
+                    className="hidden"
+                    id="video-upload"
+                  />
+                  <label htmlFor="video-upload" className="cursor-pointer">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-600">
+                      Click to upload or drag and drop
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formData.videoFile ? formData.videoFile.name : 'MP4, MOV, AVI (max 500MB)'}
+                    </p>
+                  </label>
+                </div>
               </div>
+            </div>
+          )}
 
-              {/* Submit Button */}
-              <div className="flex space-x-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
-                >
-                  Create Trip
-                </Button>
+          {/* Photos Option */}
+          {tripType === 'photos' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Upload Photo Collage
+              </label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleFileChange(e, 'photos')}
+                  className="hidden"
+                  id="photos-upload"
+                />
+                <label htmlFor="photos-upload" className="cursor-pointer">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {formData.photos.length > 0
+                      ? `${formData.photos.length} photo(s) selected`
+                      : 'JPG, PNG, HEIC (max 10MB each)'}
+                  </p>
+                </label>
               </div>
-            </form>
+              {formData.photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                  {formData.photos.slice(0, 6).map((photo, index) => (
+                    <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Trip Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Describe your Trip in few words
+            </label>
+            <textarea
+              placeholder="e.g. A relaxing beach vacation with some hiking..."
+              value={formData.tripDescription}
+              onChange={(e) => setFormData(prev => ({ ...prev, tripDescription: e.target.value }))}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none min-h-[100px]"
+            />
           </div>
-        </div>
-      )}
-      {/* Auth Requirement Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
 
-      {/* Trip Success Modal */}
+          {/* Trip Destination */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Trip Destination
+            </label>
+            <Input
+              type="text"
+              placeholder="Enter destination (e.g., Tokyo, Japan)"
+              value={formData.destination}
+              onChange={(e) => setFormData(prev => ({ ...prev, destination: e.target.value }))}
+              required
+            />
+          </div>
+
+          {/* Trip Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Trip Type
+            </label>
+            <select
+              value={formData.tripType}
+              onChange={(e) => setFormData(prev => ({ ...prev, tripType: e.target.value }))}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none"
+              required
+            >
+              <option value="adventure">Adventure</option>
+              <option value="relaxation">Relaxation</option>
+              <option value="cultural">Cultural</option>
+              <option value="beach">Beach</option>
+              <option value="mountain">Mountain</option>
+              <option value="city">City</option>
+              <option value="nature">Nature</option>
+              <option value="luxury">Luxury</option>
+            </select>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex space-x-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsModalOpen(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Create Trip
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+{/* Auth Requirement Modal */ }
+<AuthModal
+  isOpen={showAuthModal}
+  onClose={() => setShowAuthModal(false)}
+/>
+
+{/* Trip Success Modal */ }
       <TripSuccessModal
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
@@ -913,7 +920,7 @@ const Discover = () => {
       />
 
       <ChatBot ref={chatBotRef} />
-    </div>
+    </div >
   );
 };
 
