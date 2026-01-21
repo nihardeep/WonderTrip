@@ -48,7 +48,7 @@ const ChatBot = forwardRef((props, ref) => {
 
         // Send to n8n
         try {
-            fetch('https://rsharma123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+            fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
