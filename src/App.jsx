@@ -58,7 +58,8 @@ function App() {
   return (
     <Routes>
       {/* Discover page has its own layout with header and sidebar */}
-      <Route path="/" element={<Discover />} />
+      {/* Discover page (Feed) has its own layout */}
+      <Route path="/discover" element={<Discover />} />
       <Route path="/trip/:id" element={<TripDetail />} />
 
       {/* Other pages use standard layout */}
@@ -68,7 +69,7 @@ function App() {
           <AppLayout>
             <Routes>
               {/* Public Routes */}
-              <Route path="/discover" element={<Home />} />
+              <Route path="/" element={<Home />} />
 
               <Route path="/destinations" element={<Destinations />} />
               <Route path="/destinations/:id" element={<DestinationDetail />} />

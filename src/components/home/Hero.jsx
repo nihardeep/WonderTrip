@@ -31,11 +31,13 @@ const Hero = () => {
 
         // For UI feedback, we could redirect to the feed with the search query, 
         // effectively mirroring the previous behavior but with the n8n side effect.
-        navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+        // Redirect to Discover page with search query
+        navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
       } catch (error) {
         console.error('Error sending search:', error);
         // Navigate anyway on error
-        navigate(`/?search=${encodeURIComponent(searchQuery)}`);
+        // Navigate anyway on error
+        navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
       }
     }
   };
@@ -80,7 +82,7 @@ const Hero = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Where to?"
-                  className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 text-lg"
+                  className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 text-lg"
                 />
               </div>
 
@@ -90,7 +92,7 @@ const Hero = () => {
                 <input
                   type="number"
                   min="1"
-                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 text-base"
+                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-base"
                   value={adults}
                   onChange={(e) => setAdults(e.target.value)}
                 />
@@ -102,7 +104,7 @@ const Hero = () => {
                 <input
                   type="number"
                   min="1"
-                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-purple-500 text-base"
+                  className="w-full pl-4 pt-5 pb-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 text-base"
                   value={rooms}
                   onChange={(e) => setRooms(e.target.value)}
                 />
@@ -111,7 +113,7 @@ const Hero = () => {
               {/* Search Button */}
               <button
                 type="submit"
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 transition-colors duration-200 flex items-center justify-center"
+                className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 transition-colors duration-200 flex items-center justify-center"
               >
                 Search
               </button>
@@ -119,8 +121,8 @@ const Hero = () => {
           </form>
 
           {/* Call-to-Action Button */}
-          <Link to="/">
-            <button className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-8 rounded-lg transition-colors duration-200 shadow-lg text-lg">
+          <Link to="/discover">
+            <button className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-lg transition-colors duration-200 shadow-lg text-lg">
               Discover Destinations
             </button>
           </Link>
