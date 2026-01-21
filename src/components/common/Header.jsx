@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { NAV_LINKS } from '../../data/constants';
-import { Menu, X, User, LogOut } from 'lucide-react';
+import { Menu, X, User, LogOut, Globe } from 'lucide-react';
 import { useState } from 'react';
 
 const Header = () => {
@@ -26,10 +26,13 @@ const Header = () => {
           {/* Logo */}
           <Link
             to="/"
-            className="text-2xl font-display font-bold text-primary-600 hover:text-primary-700 transition-colors"
+            className="flex items-center space-x-2 text-2xl font-display font-bold text-gray-900 transition-colors"
             onClick={() => setIsMenuOpen(false)}
           >
-            WonderTrip
+            <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
+              <Globe className="w-5 h-5 text-white" />
+            </div>
+            <span>WonderTrip</span>
           </Link>
 
           {/* Desktop Navigation */}
