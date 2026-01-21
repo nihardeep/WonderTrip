@@ -10,6 +10,7 @@ import AuthModal from '../components/common/AuthModal';
 import TripSuccessModal from '../components/common/TripSuccessModal';
 import ChatBot from '../components/common/ChatBot';
 import Footer from '../components/common/Footer';
+import { NAV_LINKS } from '../data/constants';
 
 const Discover = () => {
   const [searchParams] = useSearchParams();
@@ -347,24 +348,30 @@ const Discover = () => {
         <div className="container-custom">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                <Globe className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-display font-bold text-gray-900">WonderTrip</span>
+            <Link
+              to="/"
+              className="text-2xl font-display font-bold text-primary-600 hover:text-primary-700 transition-colors"
+            >
+              WonderTrip
             </Link>
 
             {/* Navigation Links */}
+            {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-8 mx-8">
-              <Link to="/" className="text-gray-900 font-medium hover:text-purple-600 transition-colors">Home</Link>
-              <Link to="/destinations" className="text-gray-600 font-medium hover:text-purple-600 transition-colors">Destinations</Link>
-              <Link to="/about" className="text-gray-600 font-medium hover:text-purple-600 transition-colors">About</Link>
-              <Link to="/contact" className="text-gray-600 font-medium hover:text-purple-600 transition-colors">Contact</Link>
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="text-gray-700 hover:text-primary-600 transition-colors duration-200 font-medium"
+                >
+                  {link.name}
+                </Link>
+              ))}
             </div>
 
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">
-              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-purple-400 transition-colors">
+              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-primary-400 transition-colors">
                 {/* Destination */}
                 <div className="flex-1 relative border-r border-gray-200">
                   <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
@@ -375,7 +382,7 @@ const Discover = () => {
                   <input
                     type="text"
                     placeholder="Where to?"
-                    className="w-full pl-10 pr-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none"
+                    className="w-full pl-10 pr-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none"
                     value={selectedDestination}
                     onChange={(e) => setSelectedDestination(e.target.value)}
                     onKeyDown={handleSearch}
@@ -388,7 +395,7 @@ const Discover = () => {
                   <input
                     type="number"
                     min="1"
-                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none text-sm"
+                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none text-sm"
                     value={adults}
                     onChange={(e) => setAdults(parseInt(e.target.value) || 1)}
                   />
@@ -400,7 +407,7 @@ const Discover = () => {
                   <input
                     type="number"
                     min="1"
-                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent border-none text-sm"
+                    className="w-full pl-3 pt-4 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none text-sm"
                     value={rooms}
                     onChange={(e) => setRooms(parseInt(e.target.value) || 1)}
                   />
@@ -409,7 +416,7 @@ const Discover = () => {
                 {/* Search Button */}
                 <button
                   onClick={() => handleSearch()}
-                  className="p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-r-lg transition-colors flex items-center justify-center"
+                  className="p-3 bg-primary-600 hover:bg-primary-700 text-white rounded-r-lg transition-colors flex items-center justify-center"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -424,30 +431,27 @@ const Discover = () => {
                 <img
                   src={user.avatar}
                   alt="User profile"
-                  className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all"
+                  className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
                 />
               ) : (
-                <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-purple-500 transition-all text-purple-600">
+                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all text-primary-600">
                   <User className="w-6 h-6" />
                 </div>
               )
             ) : (
-              <div className="flex items-center space-x-3">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => navigate('/login')}
-                  className="text-gray-700 hover:text-purple-600 font-medium"
+              <div className="flex items-center space-x-4">
+                <Link
+                  to="/login"
+                  className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
                 >
                   Login
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-purple-600 hover:bg-purple-700 text-white shadow-md hover:shadow-lg transition-all"
-                  onClick={() => navigate('/signup')}
+                </Link>
+                <Link
+                  to="/signup"
+                  className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors font-medium"
                 >
                   Sign Up
-                </Button>
+                </Link>
               </div>
             )}
           </div>
@@ -463,11 +467,11 @@ const Discover = () => {
                 key={item.path}
                 to={item.path}
                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-colors ${item.active
-                  ? 'bg-purple-50 text-purple-700'
+                  ? 'bg-primary-50 text-primary-700'
                   : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
-                <item.icon className={`w-5 h-5 ${item.active ? 'text-purple-600' : ''}`} />
+                <item.icon className={`w-5 h-5 ${item.active ? 'text-primary-600' : ''}`} />
                 <span className="font-medium">{item.label}</span>
               </Link>
             ))}
@@ -491,7 +495,7 @@ const Discover = () => {
             </Link>
 
             {/* New AI Trip CTA */}
-            <div className="mt-6 mx-4 p-6 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 text-white text-center shadow-lg relative overflow-hidden group">
+            <div className="mt-6 mx-4 p-6 rounded-2xl bg-gradient-to-br from-primary-600 to-pink-500 text-white text-center shadow-lg relative overflow-hidden group">
               {/* Abstract decorative elements */}
               <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white opacity-10 blur-2xl group-hover:opacity-20 transition-opacity"></div>
               <div className="absolute bottom-0 left-0 -ml-8 -mb-8 w-32 h-32 rounded-full bg-pink-500 opacity-20 blur-2xl group-hover:opacity-30 transition-opacity"></div>
@@ -511,7 +515,7 @@ const Discover = () => {
                 <button
                   type="button"
                   onClick={handleOpenModal}
-                  className="w-full py-3 px-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full font-semibold text-sm hover:bg-white hover:text-purple-600 transition-all duration-300 shadow-sm"
+                  className="w-full py-3 px-4 bg-white/20 backdrop-blur-sm border border-white/30 rounded-full font-semibold text-sm hover:bg-white hover:text-primary-600 transition-all duration-300 shadow-sm"
                 >
                   Create My AI Trip
                 </button>
@@ -625,7 +629,7 @@ const Discover = () => {
                       >
                         View Trip
                       </Button>
-                      <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                      <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white">
                         Create Trip From This Post
                       </Button>
                     </div>
@@ -711,12 +715,12 @@ const Discover = () => {
                       type="button"
                       onClick={() => setTripType('video')}
                       className={`p-4 border-2 rounded-lg transition-all ${tripType === 'video'
-                        ? 'border-purple-600 bg-purple-50'
+                        ? 'border-primary-600 bg-primary-50'
                         : 'border-gray-200 hover:border-gray-300'
                         }`}
                     >
-                      <Video className={`w-6 h-6 mx-auto mb-2 ${tripType === 'video' ? 'text-purple-600' : 'text-gray-400'}`} />
-                      <span className={`font-medium ${tripType === 'video' ? 'text-purple-600' : 'text-gray-700'}`}>
+                      <Video className={`w-6 h-6 mx-auto mb-2 ${tripType === 'video' ? 'text-primary-600' : 'text-gray-400'}`} />
+                      <span className={`font-medium ${tripType === 'video' ? 'text-primary-600' : 'text-gray-700'}`}>
                         Create from Video
                       </span>
                     </button>
@@ -724,12 +728,12 @@ const Discover = () => {
                       type="button"
                       onClick={() => setTripType('photos')}
                       className={`p-4 border-2 rounded-lg transition-all ${tripType === 'photos'
-                        ? 'border-purple-600 bg-purple-50'
+                        ? 'border-primary-600 bg-primary-50'
                         : 'border-gray-200 hover:border-gray-300'
                         }`}
                     >
-                      <ImageIcon className={`w-6 h-6 mx-auto mb-2 ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-400'}`} />
-                      <span className={`font-medium ${tripType === 'photos' ? 'text-purple-600' : 'text-gray-700'}`}>
+                      <ImageIcon className={`w-6 h-6 mx-auto mb-2 ${tripType === 'photos' ? 'text-primary-600' : 'text-gray-400'}`} />
+                      <span className={`font-medium ${tripType === 'photos' ? 'text-primary-600' : 'text-gray-700'}`}>
                         Create from Photos
                       </span>
                     </button>
@@ -767,7 +771,7 @@ const Discover = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Upload Video File
                       </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors cursor-pointer">
                         <input
                           type="file"
                           accept="video/*"
@@ -795,7 +799,7 @@ const Discover = () => {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Upload Photo Collage
                     </label>
-                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors cursor-pointer">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors cursor-pointer">
                       <input
                         type="file"
                         accept="image/*"
@@ -841,7 +845,7 @@ const Discover = () => {
                     placeholder="e.g. A relaxing beach vacation with some hiking..."
                     value={formData.tripDescription}
                     onChange={(e) => setFormData(prev => ({ ...prev, tripDescription: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none min-h-[100px]"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 outline-none min-h-[100px]"
                   />
                 </div>
 
@@ -867,7 +871,7 @@ const Discover = () => {
                   <select
                     value={formData.tripType}
                     onChange={(e) => setFormData(prev => ({ ...prev, tripType: e.target.value }))}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 outline-none"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 outline-none"
                     required
                   >
                     <option value="adventure">Adventure</option>
@@ -893,7 +897,7 @@ const Discover = () => {
                   </Button>
                   <Button
                     type="submit"
-                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white"
+                    className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"
                   >
                     Create Trip
                   </Button>
