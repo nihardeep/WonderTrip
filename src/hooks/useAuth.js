@@ -9,7 +9,8 @@ export const useAuth = () => {
     refreshUser,
     isAuthenticated,
     loginSuccess, // Added
-    loading
+    loading,
+    activeSessionId
   } = useUser();
 
   return {
@@ -21,6 +22,7 @@ export const useAuth = () => {
     isAuthenticated,
     loginSuccess, // Added
     loading,
+    activeSessionId,
     // Additional convenience methods
     isAdmin: user?.role === 'admin',
     isUser: user?.role === 'user',
