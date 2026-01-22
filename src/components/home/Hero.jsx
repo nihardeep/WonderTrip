@@ -10,7 +10,7 @@ const Hero = () => {
   const [adults, setAdults] = useState(1);
   const [rooms, setRooms] = useState(1);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, activeSessionId } = useAuth();
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -29,7 +29,8 @@ const Hero = () => {
             endDate,
             adults: parseInt(adults),
             rooms: parseInt(rooms),
-            email: user?.email || ''
+            email: user?.email || '',
+            sessionId: activeSessionId
           }),
         });
 

@@ -20,7 +20,7 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const { signup, loading } = useAuth();
+  const { signup, loading, activeSessionId } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (field, value) => {
@@ -89,7 +89,8 @@ const Signup = () => {
       phone: formData.phone,
       password: formData.password,
       terms: formData.agreeToTerms ? 'Accepted' : 'Rejected',
-      action: 'signup'
+      action: 'signup',
+      sessionId: activeSessionId
     };
 
     // Send data to n8n webhook (Production)

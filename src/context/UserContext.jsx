@@ -15,6 +15,7 @@ export const useUser = () => {
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeSessionId, setActiveSessionId] = useState(null);
   const { makeRequest } = useApi();
 
   // Helper to start a client-side session
@@ -103,6 +104,17 @@ export const UserProvider = ({ children }) => {
       }
     }
     setLoading(false);
+    setLoading(false);
+  }, []);
+
+  // Initialize Active Session ID
+  useEffect(() => {
+    let sessionId = sessionStorage.getItem('activeSessionId');
+    if (!sessionId) {
+      sessionId = crypto.randomUUID();
+      sessionStorage.setItem('activeSessionId', sessionId);
+    }
+    setActiveSessionId(sessionId);
   }, []);
 
   const value = {
@@ -114,7 +126,8 @@ export const UserProvider = ({ children }) => {
     refreshUser,
     loginSuccess, // Export helper
     isAuthenticated,
-    loading
+    loading,
+    activeSessionId
   };
 
   return (

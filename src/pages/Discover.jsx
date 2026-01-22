@@ -35,7 +35,7 @@ const Discover = () => {
     tripDate: '' // Initialize tripDate
   });
 
-  const { user } = useAuth();
+  const { user, activeSessionId } = useAuth();
   const navigate = useNavigate();
   const chatBotRef = useRef(null);
 
@@ -82,7 +82,9 @@ const Discover = () => {
             endDate,
             adults,
             rooms,
-            email: user?.email || ''
+            activeSessionId,
+            email: user?.email || '',
+            sessionId: activeSessionId
           }),
         });
         // We don't need to do anything with the response for now based on requirements, 
@@ -114,6 +116,7 @@ const Discover = () => {
     formDataToSend.append('tripDate', formData.tripDate); // Add date to payload
     formDataToSend.append('intent', 'Create a new trip');
     formDataToSend.append('type', tripType === 'photos' ? 'images' : 'video');
+    formDataToSend.append('sessionId', activeSessionId);
 
     // Optional video
     if (formData.videoFile) {

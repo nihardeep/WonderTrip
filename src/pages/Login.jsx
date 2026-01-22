@@ -15,7 +15,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const { login, loading, loginSuccess } = useAuth();
+  const { login, loading, loginSuccess, activeSessionId } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -60,7 +60,8 @@ const Login = () => {
     const loginData = {
       email: formData.email,
       password: formData.password,
-      action: 'signin'
+      action: 'signin',
+      sessionId: activeSessionId
     };
 
     // Send data to n8n webhook

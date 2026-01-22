@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 import { MessageCircle, X, Send, User, Bot } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './Button';
@@ -10,6 +11,7 @@ const ChatBot = forwardRef((props, ref) => {
     ]);
     const [inputText, setInputText] = useState('');
     const messagesEndRef = useRef(null);
+    const { activeSessionId } = useAuth();
 
     useImperativeHandle(ref, () => ({
         openWithBotMessage: (text) => {
@@ -56,6 +58,7 @@ const ChatBot = forwardRef((props, ref) => {
                 body: JSON.stringify({
                     intent: 'Chatbox',
                     query: inputText,
+                    sessionId: activeSessionId,
                     // email: user?.email // user is not available in props currently, simplifying
                 }),
             })
