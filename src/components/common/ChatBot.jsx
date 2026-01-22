@@ -62,12 +62,25 @@ const ChatBot = forwardRef((props, ref) => {
                     // email: user?.email // user is not available in props currently, simplifying
                 }),
             })
-                .then(res => res.json())
+                .then(async (res) => {
+                    const contentType = res.headers.get("content-type");
+                    let data;
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        data = await res.json();
+                    } else {
+                        // Handle text/html or text/plain
+                        const text = await res.text();
+                        // Sometimes simple text responses are just the message
+                        data = { output: text };
+                    }
+                    return data;
+                })
                 .then(data => {
-                    console.log('n8n ChatBot Response:', data);
+                    console.log('n8n ChatBot Raw Data:', data);
 
                     // Determine response text from various possible n8n structures
                     const responseItem = Array.isArray(data) ? data[0] : data;
+                    console.log('n8n ChatBot ResponseItem:', responseItem);
 
                     // Check top-level fields or nested 'json' fields
                     // Common n8n output fields: output, text, message, answer, content
@@ -84,11 +97,18 @@ const ChatBot = forwardRef((props, ref) => {
                         responseItem?.json?.content ||
                         (typeof responseItem === 'string' ? responseItem : "I received your message.");
 
+                    console.log('n8n ChatBot Final Reply:', reply);
+
+                    if (!reply) {
+                        console.warn("n8n ChatBot: Reply is empty or undefined");
+                    }
+
                     const botMessage = {
                         id: Date.now() + 1,
                         text: reply,
                         sender: 'bot'
                     };
+                    console.log('n8n ChatBot Setting Message:', botMessage);
                     setMessages(prev => [...prev, botMessage]);
                 })
                 .catch(err => {
