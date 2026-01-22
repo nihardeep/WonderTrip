@@ -64,9 +64,25 @@ const ChatBot = forwardRef((props, ref) => {
             })
                 .then(res => res.json())
                 .then(data => {
-                    // Determine response text
+                    console.log('n8n ChatBot Response:', data);
+
+                    // Determine response text from various possible n8n structures
                     const responseItem = Array.isArray(data) ? data[0] : data;
-                    const reply = responseItem?.message || responseItem?.json?.message || responseItem?.output || "I received your message.";
+
+                    // Check top-level fields or nested 'json' fields
+                    // Common n8n output fields: output, text, message, answer, content
+                    const reply =
+                        responseItem?.output ||
+                        responseItem?.text ||
+                        responseItem?.message ||
+                        responseItem?.answer ||
+                        responseItem?.content ||
+                        responseItem?.json?.output ||
+                        responseItem?.json?.text ||
+                        responseItem?.json?.message ||
+                        responseItem?.json?.answer ||
+                        responseItem?.json?.content ||
+                        (typeof responseItem === 'string' ? responseItem : "I received your message.");
 
                     const botMessage = {
                         id: Date.now() + 1,
