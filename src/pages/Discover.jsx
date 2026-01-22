@@ -113,7 +113,7 @@ const Discover = () => {
     formDataToSend.append('tripDescription', formData.tripDescription);
     formDataToSend.append('tripDate', formData.tripDate); // Add date to payload
     formDataToSend.append('intent', 'Create a new trip');
-    formDataToSend.append('type', formData.tripType === 'photos' ? 'Image' : 'video');
+    formDataToSend.append('type', tripType === 'photos' ? 'images' : 'video');
 
     // Optional video
     if (formData.videoFile) {
