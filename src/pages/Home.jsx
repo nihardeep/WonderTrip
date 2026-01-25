@@ -59,11 +59,11 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Destinations */}
-      <FeaturedDestinations />
-
       {/* Hotel Deals Widget */}
       <HotelDealsWidget />
+
+      {/* Featured Destinations */}
+      <FeaturedDestinations />
 
       {/* Features Section */}
       <section className="py-16 bg-gray-50">

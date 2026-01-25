@@ -24,24 +24,37 @@ const HotelDealsWidget = () => {
     }, []);
 
     return (
-        <div className="w-full flex justify-center py-8">
-            <ins
-                className="klk-aff-widget"
-                data-aid="109497"
-                data-city_id=""
-                data-country_id=""
-                data-tag_id="0"
-                data-currency=""
-                data-lang=""
-                data-label1=""
-                data-label2=""
-                data-label3=""
-                data-prod="deals_widget"
-                data-total="6"
-            >
-                <a href="//www.klook.com/">Klook.com</a>
-            </ins>
-        </div>
+        <section className="py-16 bg-white">
+            <div className="container-custom">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+                        Featured Deals
+                    </h2>
+                    <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                        Unlock exclusive savings on top-rated stays worldwide.
+                    </p>
+                </div>
+
+                <div className="w-full flex justify-center">
+                    <ins
+                        className="klk-aff-widget"
+                        data-aid="109497"
+                        data-city_id=""
+                        data-country_id=""
+                        data-tag_id="0"
+                        data-currency=""
+                        data-lang=""
+                        data-label1=""
+                        data-label2=""
+                        data-label3=""
+                        data-prod="deals_widget"
+                        data-total="6"
+                    >
+                        <a href="//www.klook.com/">Klook.com</a>
+                    </ins>
+                </div>
+            </div>
+        </section>
     );
 };
 
