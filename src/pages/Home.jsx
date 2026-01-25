@@ -7,6 +7,8 @@ import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
 import ChatBot from '../components/common/ChatBot';
 
+import HotelDealsWidget from '../components/home/HotelDealsWidget';
+
 const Home = () => {
   const stats = [
     { icon: Globe, label: 'Destinations', value: '500+' },
@@ -59,6 +61,9 @@ const Home = () => {
 
       {/* Featured Destinations */}
       <FeaturedDestinations />
+
+      {/* Hotel Deals Widget */}
+      <HotelDealsWidget />
 
       {/* Features Section */}
       <section className="py-16 bg-gray-50">
