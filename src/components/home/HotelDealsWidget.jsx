@@ -49,7 +49,7 @@ const HotelDealsWidget = () => {
                         data-label3=""
                         data-prod="deals_widget"
                         data-total="4"
-                        data-cols="4"
+                        style={{ display: 'block', width: '100%' }}
                     >
                         <a href="//www.klook.com/">Klook.com</a>
                     </ins>
