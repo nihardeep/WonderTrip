@@ -14,101 +14,135 @@ const TripDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const [loadingText, setLoadingText] = useState('Connecting to global travel database...');
+
+    useEffect(() => {
+        let textInterval;
+        if (loading) {
+            const texts = [
+                'Connecting to global travel database...',
+                'Asking locals for hidden gems...',
+                'Checking flight patterns...',
+                'Analyzing weather forecasts...',
+                'Curating the perfect vibe for you...'
+            ];
+            let i = 0;
+            textInterval = setInterval(() => {
+                i = (i + 1) % texts.length;
+                setLoadingText(texts[i]);
+            }, 2000);
+        }
+        return () => clearInterval(textInterval);
+    }, [loading]);
+
+    const fetchTripDetails = async () => {
+        console.log('Starting fetch for trip ID:', id);
+        setLoading(true);
+        setError(null);
+
+        try {
+            // PROMISE RACE FOR TIMEOUT
+            // Create a promise that rejects after 10 seconds
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error('TIMEOUT'));
+                }, 10000);
+            });
+
+            // The actual fetch request
+            const fetchPromise = fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    intent: 'fetch_trip',
+                    trip_id: id
+                }),
+            });
+
+            // Race them!
+            const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+            console.log('Fetch response status:', response.status);
+
+            let data;
+            try {
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.log('Received non-JSON response:', text);
+                    data = {}; // Fallback to empty object
+                }
+            } catch (parseError) {
+                console.error('Error parsing response:', parseError);
+                data = {};
+            }
+
+            console.log('Trip Data Raw:', data);
+
+            // DATA MAPPING
+            // Handle different response structures gracefully
+            let tripDataRaw = {};
+            if (Array.isArray(data) && data.length > 0) {
+                // Try to find the specific trip that matches our ID
+                const foundTrip = data.find(item => {
+                    const itemData = item.json || item;
+                    return itemData.itinerary_id === id;
+                });
+
+                if (foundTrip) {
+                    console.log('Found matching trip in response array');
+                    tripDataRaw = foundTrip.json || foundTrip;
+                } else {
+                    console.log('Exact ID match not found, using first item as fallback');
+                    tripDataRaw = data[0].json || data[0];
+                }
+            } else {
+                tripDataRaw = data.json || data || {};
+            }
+
+            // Construct mapped trip with SAFE fallbacks for every field
+            const mappedTrip = {
+                id: tripDataRaw.itinerary_id || id,
+                location: tripDataRaw.destination_city ? `${tripDataRaw.destination_city}, ${tripDataRaw.destination_country || ''}` : 'Location Loading...',
+                title: tripDataRaw.headline || tripDataRaw.title || `Trip #${id}`,
+                description: tripDataRaw.description || 'Loading description...',
+                image: determineImage(tripDataRaw.destination_city || ''),
+                creator: {
+                    name: tripDataRaw.user_id || 'AI Traveler',
+                    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
+                    subscribed: false
+                },
+                keyLocations: Array.isArray(tripDataRaw.key_locations) ? tripDataRaw.key_locations : [],
+                itinerary: Array.isArray(tripDataRaw.itinerary_outline) ? tripDataRaw.itinerary_outline.map(item => ({
+                    day: item.day || 1,
+                    title: item.title || 'Day Title',
+                    description: item.description || ''
+                })) : [],
+                vibes: Array.isArray(tripDataRaw.vibes) ? tripDataRaw.vibes : [],
+                stops: tripDataRaw.duration_days || 1
+            };
+
+            console.log('Mapped Trip:', mappedTrip);
+            setTrip(mappedTrip);
+
+        } catch (err) {
+            console.error('CRITICAL ERROR in fetchTripDetails:', err);
+            if (err.message === 'TIMEOUT') {
+                setError('TIMEOUT');
+            } else {
+                setError('Failed to load trip. Please checks logs.');
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         console.log('TripDetail mounted with ID:', id);
-
-        const fetchTripDetails = async () => {
-            console.log('Starting fetch for trip ID:', id);
-            setLoading(true);
-            setError(null);
-
-            try {
-                // Call n8n webhook
-                const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        intent: 'fetch_trip',
-                        trip_id: id
-                    }),
-                });
-                console.log('Fetch response status:', response.status);
-
-                let data;
-                try {
-                    const contentType = response.headers.get("content-type");
-                    if (contentType && contentType.indexOf("application/json") !== -1) {
-                        data = await response.json();
-                    } else {
-                        const text = await response.text();
-                        console.log('Received non-JSON response:', text);
-                        data = {}; // Fallback to empty object
-                    }
-                } catch (parseError) {
-                    console.error('Error parsing response:', parseError);
-                    data = {};
-                }
-
-                console.log('Trip Data Raw:', data);
-
-                // DATA MAPPING
-                // Handle different response structures gracefully
-                let tripDataRaw = {};
-                if (Array.isArray(data) && data.length > 0) {
-                    // Try to find the specific trip that matches our ID
-                    const foundTrip = data.find(item => {
-                        const itemData = item.json || item;
-                        return itemData.itinerary_id === id;
-                    });
-
-                    if (foundTrip) {
-                        console.log('Found matching trip in response array');
-                        tripDataRaw = foundTrip.json || foundTrip;
-                    } else {
-                        console.log('Exact ID match not found, using first item as fallback');
-                        tripDataRaw = data[0].json || data[0];
-                    }
-                } else {
-                    tripDataRaw = data.json || data || {};
-                }
-
-                // Construct mapped trip with SAFE fallbacks for every field
-                const mappedTrip = {
-                    id: tripDataRaw.itinerary_id || id,
-                    location: tripDataRaw.destination_city ? `${tripDataRaw.destination_city}, ${tripDataRaw.destination_country || ''}` : 'Location Loading...',
-                    title: tripDataRaw.headline || tripDataRaw.title || `Trip #${id}`,
-                    description: tripDataRaw.description || 'Loading description...',
-                    image: determineImage(tripDataRaw.destination_city || ''),
-                    creator: {
-                        name: tripDataRaw.user_id || 'AI Traveler',
-                        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
-                        subscribed: false
-                    },
-                    keyLocations: Array.isArray(tripDataRaw.key_locations) ? tripDataRaw.key_locations : [],
-                    itinerary: Array.isArray(tripDataRaw.itinerary_outline) ? tripDataRaw.itinerary_outline.map(item => ({
-                        day: item.day || 1,
-                        title: item.title || 'Day Title',
-                        description: item.description || ''
-                    })) : [],
-                    vibes: Array.isArray(tripDataRaw.vibes) ? tripDataRaw.vibes : [],
-                    stops: tripDataRaw.duration_days || 1
-                };
-
-                console.log('Mapped Trip:', mappedTrip);
-                setTrip(mappedTrip);
-
-            } catch (err) {
-                console.error('CRITICAL ERROR in fetchTripDetails:', err);
-                setError('Failed to load trip. Please checks logs.');
-                // Even on error, we might want to show partial data if available, 
-                // but for now relying on the Error state UI.
-            } finally {
-                setLoading(false);
-            }
-        };
-
         if (id) {
             fetchTripDetails();
         } else {
@@ -131,10 +165,16 @@ const TripDetail = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
-                    <p className="text-gray-500">Loading trip {id}...</p>
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center space-y-6 p-4">
+                <div className="relative">
+                    <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <MapPin className="w-6 h-6 text-purple-600 animate-bounce" />
+                    </div>
+                </div>
+                <div className="text-center max-w-md">
+                    <p className="text-lg font-medium text-purple-900 animate-pulse">{loadingText}</p>
+                    <p className="text-sm text-gray-500 mt-2">Putting together your dream itinerary...</p>
                 </div>
             </div>
         );
@@ -142,9 +182,34 @@ const TripDetail = () => {
 
     if (error || !trip) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-                <div className="text-xl text-red-600 mb-4">{error || 'Trip not found'}</div>
-                <Button onClick={() => navigate('/discover')}>Back to Discover</Button>
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 text-center">
+                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-lg w-full">
+                    <div className="mb-6 flex justify-center">
+                        <span className="text-6xl filter drop-shadow-md">😴</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                        Oops! Our AI is taking a power nap.
+                    </h2>
+                    <p className="text-gray-600 mb-8 text-lg">
+                        Seems like our travel geniue is sleeping or out on holiday right now.
+                        Please give it a nudge to wake it up!
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Button
+                            onClick={fetchTripDetails}
+                            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
+                        >
+                            Wake up AI! ⏰
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => navigate('/discover')}
+                        >
+                            Back to Discover
+                        </Button>
+                    </div>
+                </div>
             </div>
         );
     }
