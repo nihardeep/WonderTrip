@@ -19,7 +19,7 @@ const FeaturedDestinations = () => {
             id: 1,
             name: 'Tokyo',
             location: 'Japan',
-            image: '/images/destinations/tokyo.jpg',
+            image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80',
             rating: 4.7,
             reviews: 2100,
             price: 1500,
@@ -31,7 +31,7 @@ const FeaturedDestinations = () => {
             id: 2,
             name: 'Bali',
             location: 'Indonesia',
-            image: '/images/destinations/bali.jpg',
+            image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80',
             rating: 4.8,
             reviews: 1250,
             price: 1200,
@@ -43,7 +43,7 @@ const FeaturedDestinations = () => {
             id: 3,
             name: 'Maldives',
             location: 'Maldives',
-            image: '/images/destinations/maldives.jpg',
+            image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
             rating: 4.9,
             reviews: 980,
             price: 2200,
@@ -55,7 +55,7 @@ const FeaturedDestinations = () => {
             id: 4,
             name: 'Kuala Lumpur',
             location: 'Malaysia',
-            image: '/images/destinations/kuala-lumpur.jpg',
+            image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80',
             rating: 4.6,
             reviews: 850,
             price: 1100,
@@ -67,7 +67,7 @@ const FeaturedDestinations = () => {
             id: 5,
             name: 'Hanoi',
             location: 'Vietnam',
-            image: '/images/destinations/hanoi.jpg',
+            image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
             rating: 4.7,
             reviews: 720,
             price: 900,
@@ -135,13 +135,14 @@ const FeaturedDestinations = () => {
             <Card key={destination.id} hover className="overflow-hidden">
               <div className="relative">
                 {/* Destination Image */}
-                <div className="h-48 bg-gray-200 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                  {/* Placeholder for actual image */}
-                  <div className="w-full h-full bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
-                    <MapPin className="w-12 h-12 text-primary-600" />
-                  </div>
-                </div>
+                <Link to={`/discover?search=${encodeURIComponent(destination.name)}`} className="block h-48 bg-gray-200 relative overflow-hidden group">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
+                  <img
+                    src={destination.image}
+                    alt={destination.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </Link>
 
                 {/* Rating Badge */}
                 <div className="absolute top-4 right-4 bg-white rounded-full px-3 py-1 flex items-center space-x-1 shadow-sm">

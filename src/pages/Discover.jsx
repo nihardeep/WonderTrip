@@ -75,18 +75,59 @@ const Discover = () => {
     return [];
   };
 
-  // Handle incoming data from navigation (e.g. from Hero search)
+  // Fetch posts from n8n (Centralized Logic)
+  const fetchPosts = async (query) => {
+    try {
+      // Use defaults if query is empty
+      const effectiveQuery = query || 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali';
+      console.log('Fetching posts for:', effectiveQuery);
+
+      const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          intent: 'Search',
+          query: effectiveQuery,
+          startDate, // Note: these might be empty on initial load, which is fine
+          endDate,
+          adults,
+          rooms,
+          activeSessionId,
+          email: user?.email || '',
+          sessionId: activeSessionId
+        }),
+      });
+
+      const data = await response.json();
+      const mappedPosts = mapN8nResponseToPosts(data);
+
+      if (mappedPosts.length > 0) {
+        setPosts(mappedPosts);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      // Optional: setPosts(defaultCreatorPosts) on error? 
+      // For now, keeping existing posts or defaults is safer.
+    }
+  };
+
+  // 1. Handle Initial Load & URL Changes
   useEffect(() => {
+    // If we have state from Hero navigation, use that first then clear it
     if (location.state?.n8nData) {
       const mappedPosts = mapN8nResponseToPosts(location.state.n8nData);
       if (mappedPosts.length > 0) {
         setPosts(mappedPosts);
-        // Clear state so we don't re-apply on refresh if not desired, 
-        // strictly speaking we can leave it to persist on navigation back.
-        // window.history.replaceState({}, document.title); 
       }
+      // Clear state to avoid stale data
+      window.history.replaceState({}, document.title);
+    } else {
+      // Otherwise, fetch based on URL query or defaults
+      fetchPosts(searchQuery);
     }
-  }, [location.state]);
+  }, [searchQuery]); // Trigger when URL search param changes
 
   // Handle opening the modal with auth check
   const handleOpenModal = () => {
@@ -97,7 +138,7 @@ const Discover = () => {
     setIsModalOpen(true);
   };
 
-  // Update selectedDestination when URL search param changes
+  // Update selectedDestination input when URL changes
   useEffect(() => {
     if (searchQuery) {
       setSelectedDestination(searchQuery);
@@ -112,42 +153,19 @@ const Discover = () => {
   }, [isModalOpen]);
 
 
-
   const handleSearch = async (e) => {
     // If triggered by keydown, only proceed on Enter
     if (e && e.key && e.key !== 'Enter') return;
 
+    // Update URL to trigger the useEffect above
+    // This makes the URL the single source of truth
     if (selectedDestination.trim()) {
-      try {
-        const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            intent: 'Search',
-            query: selectedDestination,
-            startDate,
-            endDate,
-            adults,
-            rooms,
-            activeSessionId,
-            email: user?.email || '',
-            sessionId: activeSessionId
-          }),
-        });
-
-        const data = await response.json();
-
-        // Handle n8n response mapping
-        const mappedPosts = mapN8nResponseToPosts(data);
-
-        if (mappedPosts.length > 0) {
-          setPosts(mappedPosts);
-        }
-      } catch (error) {
-        console.error('Error sending search:', error);
-      }
+      const params = new URLSearchParams(searchParams);
+      params.set('search', selectedDestination);
+      navigate(`/discover?${params.toString()}`);
+    } else {
+      // Cleared search
+      navigate('/discover');
     }
   };
 
@@ -378,12 +396,9 @@ const Discover = () => {
 
   const [posts, setPosts] = useState(defaultCreatorPosts);
 
-  // Filter posts based on selected destination
-  const filteredPosts = selectedDestination
-    ? posts.filter(post =>
-      post.location.toLowerCase().includes(selectedDestination.toLowerCase())
-    )
-    : posts;
+  // Filter posts based on selected destination - REMOVED client side filter
+  // We now rely on the API to filter results based on the search query
+  const filteredPosts = posts;
 
   const trendingCreators = [
     { name: 'Alice Travel', avatar: '/images/creators/alice.jpg' },

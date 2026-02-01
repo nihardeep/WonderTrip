@@ -12,41 +12,15 @@ const Hero = () => {
   const navigate = useNavigate();
   const { user, activeSessionId } = useAuth();
 
-  const handleSearch = async (e) => {
+  const handleSearch = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      try {
-        // Send search intent to n8n
-        await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            intent: 'Search',
-            query: searchQuery,
-            startDate,
-            endDate,
-            adults: parseInt(adults),
-            rooms: parseInt(rooms),
-            email: user?.email || '',
-            sessionId: activeSessionId
-          }),
-        });
-
-        // Capture response
-        const data = await response.json();
-
-        // Redirect to Discover page with search query and data
-        navigate(`/discover?search=${encodeURIComponent(searchQuery)}`, {
-          state: { n8nData: data }
-        });
-      } catch (error) {
-        console.error('Error sending search:', error);
-        // Navigate anyway on error
-        // Navigate anyway on error
-        navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
-      }
+      // Navigate to Discover page with search query
+      // The Discover page will handle the actual API call
+      navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
+    } else {
+      // Even if empty, go to discover which will load defaults
+      navigate('/discover');
     }
   };
 
