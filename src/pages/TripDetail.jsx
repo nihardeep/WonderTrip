@@ -16,10 +16,13 @@ const TripDetail = () => {
 
     useEffect(() => {
         console.log('TripDetail mounted with ID:', id);
+
         const fetchTripDetails = async () => {
-            console.log('Fetching trip details for ID:', id);
+            console.log('Starting fetch for trip ID:', id);
+            setLoading(true);
+            setError(null);
+
             try {
-                setLoading(true);
                 // Call n8n webhook
                 const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
                     method: 'POST',
@@ -31,62 +34,64 @@ const TripDetail = () => {
                         trip_id: id
                     }),
                 });
-                console.log('Response status:', response.status);
+                console.log('Fetch response status:', response.status);
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch trip details');
+                let data;
+                try {
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        data = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.log('Received non-JSON response:', text);
+                        data = {}; // Fallback to empty object
+                    }
+                } catch (parseError) {
+                    console.error('Error parsing response:', parseError);
+                    data = {};
                 }
 
-                const data = await response.json();
-                console.log('Trip Data received:', data);
+                console.log('Trip Data Raw:', data);
 
-                // Handle different response structures (array or single object)
+                // DATA MAPPING
+                // Handle different response structures gracefully
                 let tripDataRaw = {};
                 if (Array.isArray(data)) {
-                    if (data.length > 0) {
-                        tripDataRaw = data[0].json || data[0];
-                    } else {
-                        console.warn('Received empty array from n8n');
-                        // Handle empty array case - maybe throw error or leave as empty obj
-                    }
+                    tripDataRaw = data.length > 0 ? (data[0].json || data[0]) : {};
                 } else {
                     tripDataRaw = data.json || data || {};
                 }
 
-                if (!tripDataRaw || Object.keys(tripDataRaw).length === 0) {
-                    console.warn('No valid trip data found in response');
-                    // Potentially throw error to trigger error state
-                    // throw new Error('No trip data found');
-                }
-
-                // Map response to UI format
+                // Construct mapped trip with SAFE fallbacks for every field
                 const mappedTrip = {
                     id: tripDataRaw.itinerary_id || id,
-                    location: `${tripDataRaw.destination_city || ''}, ${tripDataRaw.destination_country || ''}`,
-                    title: tripDataRaw.headline || `Trip to ${tripDataRaw.destination_city || 'Unknown'}`,
-                    description: tripDataRaw.description || '',
-                    // Simple image fallback logic similar to Discover page
+                    location: tripDataRaw.destination_city ? `${tripDataRaw.destination_city}, ${tripDataRaw.destination_country || ''}` : 'Location Loading...',
+                    title: tripDataRaw.headline || tripDataRaw.title || `Trip #${id}`,
+                    description: tripDataRaw.description || 'Loading description...',
                     image: determineImage(tripDataRaw.destination_city || ''),
                     creator: {
                         name: tripDataRaw.user_id || 'AI Traveler',
                         avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
                         subscribed: false
                     },
-                    keyLocations: tripDataRaw.key_locations || [],
-                    // Map itinerary items
-                    itinerary: (tripDataRaw.itinerary_outline || []).map(item => ({
-                        day: item.day,
-                        title: item.title,
-                        description: item.description
-                    })),
-                    vibes: tripDataRaw.vibes || [],
+                    keyLocations: Array.isArray(tripDataRaw.key_locations) ? tripDataRaw.key_locations : [],
+                    itinerary: Array.isArray(tripDataRaw.itinerary_outline) ? tripDataRaw.itinerary_outline.map(item => ({
+                        day: item.day || 1,
+                        title: item.title || 'Day Title',
+                        description: item.description || ''
+                    })) : [],
+                    vibes: Array.isArray(tripDataRaw.vibes) ? tripDataRaw.vibes : [],
                     stops: tripDataRaw.duration_days || 1
                 };
 
+                console.log('Mapped Trip:', mappedTrip);
                 setTrip(mappedTrip);
+
             } catch (err) {
-                console.error('Error fetching trip:', err);
-                setError('Failed to load trip details. Please try again.');
+                console.error('CRITICAL ERROR in fetchTripDetails:', err);
+                setError('Failed to load trip. Please checks logs.');
+                // Even on error, we might want to show partial data if available, 
+                // but for now relying on the Error state UI.
             } finally {
                 setLoading(false);
             }
@@ -95,12 +100,15 @@ const TripDetail = () => {
         if (id) {
             fetchTripDetails();
         } else {
-            console.log('No ID found in params');
+            console.warn('No ID provided to TripDetail');
+            setLoading(false);
+            setError('No Trip ID provided');
         }
     }, [id]);
 
     // Helper to pick a random-ish image based on destination
     const determineImage = (destination) => {
+        if (!destination) return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80';
         const d = destination.toLowerCase();
         if (d.includes('tokyo')) return 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&q=80';
         if (d.includes('bali')) return 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1200&q=80';
@@ -112,7 +120,10 @@ const TripDetail = () => {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600 mx-auto mb-4"></div>
+                    <p className="text-gray-500">Loading trip {id}...</p>
+                </div>
             </div>
         );
     }
