@@ -168,9 +168,6 @@ const TripDetail = () => {
             <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center space-y-6 p-4">
                 <div className="relative">
                     <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <MapPin className="w-6 h-6 text-purple-600 animate-bounce" />
-                    </div>
                 </div>
                 <div className="text-center max-w-md">
                     <p className="text-lg font-medium text-purple-900 animate-pulse">{loadingText}</p>
@@ -191,8 +188,7 @@ const TripDetail = () => {
                         Oops! Our AI is taking a power nap.
                     </h2>
                     <p className="text-gray-600 mb-8 text-lg">
-                        Seems like our travel geniue is sleeping or out on holiday right now.
-                        Please give it a nudge to wake it up!
+                        {(typeof error === 'string' && error === 'TIMEOUT') ? 'The request timed out.' : 'Unable to load trip details.'}
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -382,7 +378,7 @@ const TripDetail = () => {
                 </div>
             </div>
 
-            <ChatBot />
+            {/* <ChatBot /> */}
         </div>
     );
 };
