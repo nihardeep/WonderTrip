@@ -56,8 +56,20 @@ const TripDetail = () => {
                 // DATA MAPPING
                 // Handle different response structures gracefully
                 let tripDataRaw = {};
-                if (Array.isArray(data)) {
-                    tripDataRaw = data.length > 0 ? (data[0].json || data[0]) : {};
+                if (Array.isArray(data) && data.length > 0) {
+                    // Try to find the specific trip that matches our ID
+                    const foundTrip = data.find(item => {
+                        const itemData = item.json || item;
+                        return itemData.itinerary_id === id;
+                    });
+
+                    if (foundTrip) {
+                        console.log('Found matching trip in response array');
+                        tripDataRaw = foundTrip.json || foundTrip;
+                    } else {
+                        console.log('Exact ID match not found, using first item as fallback');
+                        tripDataRaw = data[0].json || data[0];
+                    }
                 } else {
                     tripDataRaw = data.json || data || {};
                 }
