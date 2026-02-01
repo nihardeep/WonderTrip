@@ -89,7 +89,6 @@ const TripDetail = () => {
                 });
 
                 if (foundTrip) {
-                    console.log('Found matching trip in response array');
                     tripDataRaw = foundTrip.json || foundTrip;
                 } else {
                     console.log('Exact ID match not found, using first item as fallback');
@@ -97,6 +96,15 @@ const TripDetail = () => {
                 }
             } else {
                 tripDataRaw = data.json || data || {};
+            }
+
+            // CRITICAL VALIDATION: If we don't have basic data, treat as error
+            // We check for headline/title OR destination OR itinerary
+            const isValidTrip = tripDataRaw.headline || tripDataRaw.title || tripDataRaw.destination_city || (tripDataRaw.itinerary_outline && tripDataRaw.itinerary_outline.length > 0);
+
+            if (!isValidTrip) {
+                console.warn('Received data but it lacks essential trip fields. Showing error.');
+                throw new Error('TRIP_NOT_FOUND');
             }
 
             // Construct mapped trip with SAFE fallbacks
@@ -127,6 +135,8 @@ const TripDetail = () => {
             console.error(`CRITICAL ERROR: ${err.message}`);
             if (err.message === 'TIMEOUT') {
                 setError('TIMEOUT');
+            } else if (err.message === 'TRIP_NOT_FOUND') {
+                setError('TRIP_NOT_FOUND');
             } else {
                 setError(err.message || 'Failed to load trip');
             }
@@ -181,7 +191,9 @@ const TripDetail = () => {
                         Oops! Our AI is taking a power nap.
                     </h2>
                     <p className="text-gray-600 mb-4 text-lg">
-                        {(typeof error === 'string' && error === 'TIMEOUT') ? 'The request timed out.' : 'Unable to load trip details.'}
+                        {(typeof error === 'string' && error === 'TIMEOUT') ? 'The request timed out.' :
+                            (typeof error === 'string' && error === 'TRIP_NOT_FOUND') ? 'We could not find the trip details. Please try again.' :
+                                'Unable to load trip details.'}
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
