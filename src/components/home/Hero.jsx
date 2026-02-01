@@ -34,10 +34,13 @@ const Hero = () => {
           }),
         });
 
-        // For UI feedback, we could redirect to the feed with the search query, 
-        // effectively mirroring the previous behavior but with the n8n side effect.
-        // Redirect to Discover page with search query
-        navigate(`/discover?search=${encodeURIComponent(searchQuery)}`);
+        // Capture response
+        const data = await response.json();
+
+        // Redirect to Discover page with search query and data
+        navigate(`/discover?search=${encodeURIComponent(searchQuery)}`, {
+          state: { n8nData: data }
+        });
       } catch (error) {
         console.error('Error sending search:', error);
         // Navigate anyway on error

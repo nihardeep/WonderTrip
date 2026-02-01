@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Home, Globe, MapPin, Users, User, Settings, HelpCircle, Clock, Plus, X, Upload, Video, Image as ImageIcon, Calendar } from 'lucide-react';
 import Button from '../components/common/Button';
@@ -37,7 +37,56 @@ const Discover = () => {
 
   const { user, activeSessionId } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const chatBotRef = useRef(null);
+
+  // Helper to map n8n response to posts
+  const mapN8nResponseToPosts = (data) => {
+    if (Array.isArray(data)) {
+      return data.map(item => {
+        const json = item.json || item; // Handle wrapped json or direct object
+
+        // Determine image based on destination (simple fallback logic)
+        let image = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
+        const dest = json.destination_city || json.destination || '';
+        const destLower = dest.toLowerCase();
+
+        if (destLower.includes('tokyo')) image = 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80';
+        else if (destLower.includes('bali')) image = 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80';
+        else if (destLower.includes('ibiza')) image = 'https://images.unsplash.com/photo-1560242259-2470a6c6ec2d?w=800&q=80';
+        else if (destLower.includes('maldives')) image = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
+        else if (destLower.includes('paris')) image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80';
+
+        return {
+          id: json.itinerary_id || Math.random().toString(36).substr(2, 9),
+          creator: {
+            name: json.user_id || 'AI Traveler', // Map user_id to name
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces', // Default avatar
+            subscribed: false
+          },
+          image: image,
+          description: json.description || json.headline || 'An amazing trip itinerary generated just for you.',
+          location: `${json.destination_city || ''}, ${json.destination_country || ''}`,
+          stops: json.duration_days || 1, // Map duration to stops
+          route: [] // Can be populated if key_locations represents points
+        };
+      });
+    }
+    return [];
+  };
+
+  // Handle incoming data from navigation (e.g. from Hero search)
+  useEffect(() => {
+    if (location.state?.n8nData) {
+      const mappedPosts = mapN8nResponseToPosts(location.state.n8nData);
+      if (mappedPosts.length > 0) {
+        setPosts(mappedPosts);
+        // Clear state so we don't re-apply on refresh if not desired, 
+        // strictly speaking we can leave it to persist on navigation back.
+        // window.history.replaceState({}, document.title); 
+      }
+    }
+  }, [location.state]);
 
   // Handle opening the modal with auth check
   const handleOpenModal = () => {
@@ -70,7 +119,7 @@ const Discover = () => {
 
     if (selectedDestination.trim()) {
       try {
-        await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+        const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -87,8 +136,15 @@ const Discover = () => {
             sessionId: activeSessionId
           }),
         });
-        // We don't need to do anything with the response for now based on requirements, 
-        // or maybe duplicate the logic if needed, but for now just sending the signal.
+
+        const data = await response.json();
+
+        // Handle n8n response mapping
+        const mappedPosts = mapN8nResponseToPosts(data);
+
+        if (mappedPosts.length > 0) {
+          setPosts(mappedPosts);
+        }
       } catch (error) {
         console.error('Error sending search:', error);
       }
@@ -221,8 +277,8 @@ const Discover = () => {
     }
   };
 
-  // Mock creator posts data - at least 5 profiles as requested
-  const creatorPosts = [
+  // Default creator posts data
+  const defaultCreatorPosts = [
     {
       id: 1,
       creator: {
@@ -320,12 +376,14 @@ const Discover = () => {
     }
   ];
 
+  const [posts, setPosts] = useState(defaultCreatorPosts);
+
   // Filter posts based on selected destination
   const filteredPosts = selectedDestination
-    ? creatorPosts.filter(post =>
+    ? posts.filter(post =>
       post.location.toLowerCase().includes(selectedDestination.toLowerCase())
     )
-    : creatorPosts;
+    : posts;
 
   const trendingCreators = [
     { name: 'Alice Travel', avatar: '/images/creators/alice.jpg' },
