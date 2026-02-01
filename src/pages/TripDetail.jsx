@@ -26,7 +26,7 @@ const TripDetail = () => {
                     },
                     body: JSON.stringify({
                         intent: 'fetch_trip',
-                        tripId: id
+                        trip_id: id
                     }),
                 });
 
