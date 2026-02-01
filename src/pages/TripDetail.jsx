@@ -15,7 +15,9 @@ const TripDetail = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
+        console.log('TripDetail mounted with ID:', id);
         const fetchTripDetails = async () => {
+            console.log('Fetching trip details for ID:', id);
             try {
                 setLoading(true);
                 // Call n8n webhook
@@ -29,15 +31,33 @@ const TripDetail = () => {
                         trip_id: id
                     }),
                 });
+                console.log('Response status:', response.status);
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch trip details');
                 }
 
                 const data = await response.json();
+                console.log('Trip Data received:', data);
 
                 // Handle different response structures (array or single object)
-                const tripDataRaw = Array.isArray(data) ? (data[0].json || data[0]) : (data.json || data);
+                let tripDataRaw = {};
+                if (Array.isArray(data)) {
+                    if (data.length > 0) {
+                        tripDataRaw = data[0].json || data[0];
+                    } else {
+                        console.warn('Received empty array from n8n');
+                        // Handle empty array case - maybe throw error or leave as empty obj
+                    }
+                } else {
+                    tripDataRaw = data.json || data || {};
+                }
+
+                if (!tripDataRaw || Object.keys(tripDataRaw).length === 0) {
+                    console.warn('No valid trip data found in response');
+                    // Potentially throw error to trigger error state
+                    // throw new Error('No trip data found');
+                }
 
                 // Map response to UI format
                 const mappedTrip = {
@@ -74,6 +94,8 @@ const TripDetail = () => {
 
         if (id) {
             fetchTripDetails();
+        } else {
+            console.log('No ID found in params');
         }
     }, [id]);
 

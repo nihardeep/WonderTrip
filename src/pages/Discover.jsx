@@ -721,7 +721,10 @@ const Discover = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigate(`/trip/${post.id}`)}
+                        onClick={() => {
+                          console.log('Navigating to trip:', post.id);
+                          navigate(`/trip/${post.id}`);
+                        }}
                       >
                         View Trip
                       </Button>
