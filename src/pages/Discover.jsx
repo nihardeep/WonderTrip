@@ -75,9 +75,12 @@ const Discover = () => {
     return [];
   };
 
+  const [isSearching, setIsSearching] = useState(false);
+
   // Fetch posts from n8n (Centralized Logic)
   const fetchPosts = async (query) => {
     try {
+      setIsSearching(true);
       // Use defaults if query is empty
       const effectiveQuery = query || 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali';
       console.log('Fetching posts for:', effectiveQuery);
@@ -105,11 +108,15 @@ const Discover = () => {
 
       if (mappedPosts.length > 0) {
         setPosts(mappedPosts);
+        // Focus top of screen when results show
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
       // Optional: setPosts(defaultCreatorPosts) on error? 
       // For now, keeping existing posts or defaults is safer.
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -802,6 +809,22 @@ const Discover = () => {
 
         </aside>
       </div>
+
+      {/* Search Loading Overlay */}
+      {isSearching && (
+        <div className="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center p-4">
+          <div className="relative mb-8">
+            <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-b-4 border-primary-600"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Globe className="w-8 h-8 text-primary-600 animate-pulse" />
+            </div>
+          </div>
+          <div className="text-center max-w-md">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2 animate-pulse">Finding perfect destinations...</h3>
+            <p className="text-gray-600">Curating the best travel experiences just for you.</p>
+          </div>
+        </div>
+      )}
 
       {/* AI Trip Generation Modal */}
       {

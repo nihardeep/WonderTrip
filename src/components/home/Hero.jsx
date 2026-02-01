@@ -125,7 +125,7 @@ const Hero = () => {
           </form>
 
           {/* Call-to-Action Button */}
-          <Link to="/discover">
+          <Link to="/discover?search=Maldives,Hanoi,Kuala Lumpur,Tokyo,Bali,Ibiza">
             <button className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-8 rounded-lg transition-colors duration-200 shadow-lg text-lg">
               Discover Destinations
             </button>
