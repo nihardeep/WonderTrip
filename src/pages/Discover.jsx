@@ -40,6 +40,9 @@ const Discover = () => {
   const location = useLocation();
   const chatBotRef = useRef(null);
 
+  // Supported destinations configuration
+  const SUPPORTED_DESTINATIONS = ['maldives', 'hanoi', 'kuala lumpur', 'tokyo', 'bali', 'ibiza'];
+
   // Helper to map n8n response to posts
   const mapN8nResponseToPosts = (data) => {
     if (Array.isArray(data)) {
@@ -76,13 +79,31 @@ const Discover = () => {
   };
 
   const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState(null);
 
   // Fetch posts from n8n (Centralized Logic)
   const fetchPosts = async (query) => {
+    setSearchError(null); // Reset error
+
+    // Check supported destinations
+    const effectiveQuery = query || 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali';
+    const queryLower = effectiveQuery.toLowerCase();
+
+    // Check if at least one supported destination is in the query (partial match)
+    // We allow the default query to pass always
+    const isSupported = SUPPORTED_DESTINATIONS.some(dest => queryLower.includes(dest));
+
+    // Special check for empty query which defaults to supported list, so it's valid
+    // But if a user typed a specific query that is NOT in the list, we block it.
+    if (query && !isSupported) {
+      console.warn('Unsupported destination search:', query);
+      setPosts([]); // Clear posts
+      setSearchError(true);
+      return;
+    }
+
     try {
       setIsSearching(true);
-      // Use defaults if query is empty
-      const effectiveQuery = query || 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali';
       console.log('Fetching posts for:', effectiveQuery);
 
       const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
@@ -658,105 +679,127 @@ const Discover = () => {
 
             {/* Creator Posts */}
             <div className="space-y-6">
-              {filteredPosts.map((post) => (
-                <Card key={post.id} className="overflow-hidden">
-                  {/* Creator Header */}
-                  <CardContent className="p-6 pb-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-3">
+              {searchError ? (
+                <div className="bg-orange-50 border border-orange-100 rounded-2xl p-8 text-center">
+                  <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Globe className="w-8 h-8 text-orange-500" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">We're expanding soon! 🌍</h3>
+                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                    We currently only feature curated trips for a select few destinations. Please try searching for one of these instead:
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                    {SUPPORTED_DESTINATIONS.map((dest) => (
+                      <span
+                        key={dest}
+                        onClick={() => setSelectedDestination(dest.charAt(0).toUpperCase() + dest.slice(1))}
+                        className="px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium text-gray-700 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 cursor-pointer transition-colors capitalize"
+                      >
+                        {dest}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                filteredPosts.map((post) => (
+                  <Card key={post.id} className="overflow-hidden">
+                    {/* Creator Header */}
+                    <CardContent className="p-6 pb-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={
+                              post.creator.name === 'John Doe'
+                                ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces'
+                                : post.creator.name === 'Sophia Travels'
+                                  ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces'
+                                  : post.creator.name === 'Alice Travel'
+                                    ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces'
+                                    : post.creator.name === 'Wanderlust Ben'
+                                      ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces'
+                                      : post.creator.name === 'Journey Jules'
+                                        ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
+                                        : post.creator.name === 'Tokyo Explorer'
+                                          ? 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces'
+                                          : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop&crop=faces'
+                            }
+                            alt={post.creator.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                          <span className="font-semibold text-gray-900">{post.creator.name}</span>
+                        </div>
+                        <Button
+                          variant={post.creator.subscribed ? 'secondary' : 'outline'}
+                          size="sm"
+                        >
+                          {post.creator.subscribed ? 'Subscribed' : 'Subscribe'}
+                        </Button>
+                      </div>
+
+                      {/* Main Image */}
+                      <div className="w-full h-64 rounded-lg mb-4 overflow-hidden">
                         <img
                           src={
-                            post.creator.name === 'John Doe'
-                              ? 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces'
-                              : post.creator.name === 'Sophia Travels'
-                                ? 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces'
-                                : post.creator.name === 'Alice Travel'
-                                  ? 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=faces'
-                                  : post.creator.name === 'Wanderlust Ben'
-                                    ? 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=faces'
-                                    : post.creator.name === 'Journey Jules'
-                                      ? 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces'
-                                      : post.creator.name === 'Tokyo Explorer'
-                                        ? 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop&crop=faces'
-                                        : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop&crop=faces'
+                            post.location.includes('Tokyo')
+                              ? 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80'
+                              : post.location.includes('Bali')
+                                ? 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80'
+                                : post.location.includes('Maldives')
+                                  ? 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'
+                                  : post.location.includes('Kuala Lumpur')
+                                    ? 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80'
+                                    : post.location.includes('Hanoi')
+                                      ? 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80'
+                                      : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
                           }
-                          alt={post.creator.name}
-                          className="w-10 h-10 rounded-full object-cover"
+                          alt={post.location}
+                          className="w-full h-full object-cover"
                         />
-                        <span className="font-semibold text-gray-900">{post.creator.name}</span>
                       </div>
-                      <Button
-                        variant={post.creator.subscribed ? 'secondary' : 'outline'}
-                        size="sm"
-                      >
-                        {post.creator.subscribed ? 'Subscribed' : 'Subscribe'}
-                      </Button>
-                    </div>
 
-                    {/* Main Image */}
-                    <div className="w-full h-64 rounded-lg mb-4 overflow-hidden">
-                      <img
-                        src={
-                          post.location.includes('Tokyo')
-                            ? 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80'
-                            : post.location.includes('Bali')
-                              ? 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80'
-                              : post.location.includes('Maldives')
-                                ? 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80'
-                                : post.location.includes('Kuala Lumpur')
-                                  ? 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80'
-                                  : post.location.includes('Hanoi')
-                                    ? 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80'
-                                    : 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80'
-                        }
-                        alt={post.location}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                      {/* Description */}
+                      <p className="text-gray-700 mb-4 leading-relaxed">
+                        {post.description}
+                      </p>
 
-                    {/* Description */}
-                    <p className="text-gray-700 mb-4 leading-relaxed">
-                      {post.description}
-                    </p>
-
-                    {/* Location & Stops */}
-                    <div className="flex items-center space-x-6 mb-4 text-gray-600">
-                      <div className="flex items-center">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        <span>{post.location}</span>
+                      {/* Location & Stops */}
+                      <div className="flex items-center space-x-6 mb-4 text-gray-600">
+                        <div className="flex items-center">
+                          <MapPin className="w-4 h-4 mr-2" />
+                          <span>{post.location}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock className="w-4 h-4 mr-2" />
+                          <span>{post.stops} stops</span>
+                        </div>
                       </div>
-                      <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-2" />
-                        <span>{post.stops} stops</span>
-                      </div>
-                    </div>
 
-                    {/* Map Snippet */}
-                    {post.route.length > 0 && (
-                      <div className="w-full h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                        <div className="text-gray-400 text-sm">Map Route Preview</div>
-                      </div>
-                    )}
+                      {/* Map Snippet */}
+                      {post.route.length > 0 && (
+                        <div className="w-full h-32 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+                          <div className="text-gray-400 text-sm">Map Route Preview</div>
+                        </div>
+                      )}
 
-                    {/* Action Buttons */}
-                    <div className="flex space-x-3">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          console.log('Opening trip in new tab:', post.id);
-                          window.open(`/trip/${post.id}`, '_blank');
-                        }}
-                      >
-                        View Trip
-                      </Button>
-                      <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white">
-                        Create Trip From This Post
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      {/* Action Buttons */}
+                      <div className="flex space-x-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            console.log('Opening trip in new tab:', post.id);
+                            window.open(`/trip/${post.id}`, '_blank');
+                          }}
+                        >
+                          View Trip
+                        </Button>
+                        <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white">
+                          Create Trip From This Post
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )))}
             </div>
           </div>
           <div className="mt-12">
