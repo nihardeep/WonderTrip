@@ -15,14 +15,6 @@ const TripDetail = () => {
     const [error, setError] = useState(null);
     const [loadingText, setLoadingText] = useState('Connecting to global travel database...');
 
-    // DEBUG: On-screen logs
-    const [logs, setLogs] = useState([]);
-    const addLog = (msg) => {
-        const time = new Date().toISOString().split('T')[1].split('.')[0];
-        setLogs(prev => [...prev, `${time} - ${msg}`]);
-        console.log(`[TripDetail] ${msg}`);
-    };
-
     useEffect(() => {
         let textInterval;
         if (loading) {
@@ -43,7 +35,7 @@ const TripDetail = () => {
     }, [loading]);
 
     const fetchTripDetails = async () => {
-        addLog(`Starting fetch for trip ID: ${id}`);
+        console.log(`Starting fetch for trip ID: ${id}`);
         setLoading(true);
         setError(null);
 
@@ -55,7 +47,7 @@ const TripDetail = () => {
                 }, 10000);
             });
 
-            addLog('Sending POST request to n8n...');
+            // The actual fetch request
             const fetchPromise = fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
                 method: 'POST',
                 headers: {
@@ -69,21 +61,20 @@ const TripDetail = () => {
 
             // Race them!
             const response = await Promise.race([fetchPromise, timeoutPromise]);
-            addLog(`Response status: ${response.status}`);
+            console.log(`Response status: ${response.status}`);
 
             let data;
             try {
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     data = await response.json();
-                    addLog('Parsed JSON response');
                 } else {
                     const text = await response.text();
-                    addLog(`Received non-JSON response: ${text.substring(0, 50)}...`);
+                    console.log(`Received non-JSON response: ${text.substring(0, 50)}...`);
                     data = {};
                 }
             } catch (parseError) {
-                addLog(`Error parsing response: ${parseError.message}`);
+                console.error(`Error parsing response: ${parseError.message}`);
                 data = {};
             }
 
@@ -98,10 +89,10 @@ const TripDetail = () => {
                 });
 
                 if (foundTrip) {
-                    addLog('Found matching trip in response array');
+                    console.log('Found matching trip in response array');
                     tripDataRaw = foundTrip.json || foundTrip;
                 } else {
-                    addLog('Exact ID match not found, using first item as fallback');
+                    console.log('Exact ID match not found, using first item as fallback');
                     tripDataRaw = data[0].json || data[0];
                 }
             } else {
@@ -133,7 +124,7 @@ const TripDetail = () => {
             setTrip(mappedTrip);
 
         } catch (err) {
-            addLog(`CRITICAL ERROR: ${err.message}`);
+            console.error(`CRITICAL ERROR: ${err.message}`);
             if (err.message === 'TIMEOUT') {
                 setError('TIMEOUT');
             } else {
@@ -145,11 +136,11 @@ const TripDetail = () => {
     };
 
     useEffect(() => {
-        addLog(`TripDetail mounted with ID: ${id}`);
+        console.log(`TripDetail mounted with ID: ${id}`);
         if (id) {
             fetchTripDetails();
         } else {
-            addLog('WARN: No ID provided');
+            console.warn('WARN: No ID provided');
             setLoading(false);
             setError('No Trip ID provided');
         }
@@ -173,12 +164,7 @@ const TripDetail = () => {
                 </div>
                 <div className="text-center max-w-md w-full">
                     <p className="text-lg font-medium text-purple-900 animate-pulse">{loadingText}</p>
-
-                    {/* DEBUG CONSOLE */}
-                    <div className="mt-8 mx-auto p-3 bg-gray-900 text-green-400 text-xs text-left font-mono rounded-lg shadow-inner overflow-auto h-48 w-full max-w-sm border border-gray-700">
-                        <div className="border-b border-gray-700 pb-1 mb-2 text-gray-400 font-bold">DEBUG CONSOLE</div>
-                        {logs.map((l, i) => <div key={i} className="whitespace-nowrap">{l}</div>)}
-                    </div>
+                    <p className="text-sm text-gray-500 mt-2">Putting together your dream itinerary...</p>
                 </div>
             </div>
         );
@@ -198,17 +184,12 @@ const TripDetail = () => {
                         {(typeof error === 'string' && error === 'TIMEOUT') ? 'The request timed out.' : 'Unable to load trip details.'}
                     </p>
 
-                    {/* DEBUG CONSOLE IN ERROR */}
-                    <div className="mb-6 p-3 bg-gray-100 text-gray-700 text-xs text-left font-mono rounded overflow-auto h-32 w-full border border-gray-300">
-                        {logs.map((l, i) => <div key={i}>{l}</div>)}
-                    </div>
-
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button
                             onClick={fetchTripDetails}
                             className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
                         >
-                            Retry Connection ⏰
+                            Wake up AI! ⏰
                         </Button>
                         <Button
                             variant="outline"
