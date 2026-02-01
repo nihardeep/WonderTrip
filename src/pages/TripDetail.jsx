@@ -10,45 +10,99 @@ const TripDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
+    const [trip, setTrip] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // Mock trip data - in production, this would be fetched based on ID
-    const tripData = {
-        id: 1,
-        location: "Bali, Indonesia",
-        title: "Discovering Bali's Hidden Jungle Retreats",
-        description: "Escape to the tranquil heart of Bali, where lush rice paddies meet serene jungle canopies. Our latest journey took us to a hidden gem, offering unparalleled peace, rejuvenating experiences, and breathtaking views. From morning yoga amidst the mist to sustainable living workshops, this retreat is a sanctuary for the soul. Join us as we explore the magic of Bali's natural beauty and uncover the secrets to a truly restorative getaway.",
-        image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1200&q=80',
-        creator: {
-            name: 'Serene Wanderer',
-            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=faces',
-            subscribed: false
-        },
-        keyLocations: ['Ubud, Bali', 'Tegallalang Rice Terraces', 'Campuhan Ridge Walk'],
-        itinerary: [
-            {
-                day: 1,
-                title: 'Arrival & Tranquil Immersion',
-                description: 'Settle into your jungle villa, enjoy a traditional Balinese welcome massage, and a serene sunset yoga session overlooking the valley.'
-            },
-            {
-                day: 2,
-                title: 'Cultural Exploration & Rice Paddies',
-                description: 'Visit the iconic Tegallalang Rice Terraces, explore local artisan markets in Ubud, and participate in a Balinese cooking class.'
-            },
-            {
-                day: 3,
-                title: 'Wellness & Nature Trails',
-                description: 'Morning meditation, a guided walk along the Campuhan Ridge Walk, followed by a refreshing dip in the natural spring pools.'
-            },
-            {
-                day: 4,
-                title: 'Departure & Lasting Memories',
-                description: 'Enjoy a final gourmet breakfast, reflective journaling, and prepare for departure, carrying the peace of Bali with you.'
+    useEffect(() => {
+        const fetchTripDetails = async () => {
+            try {
+                setLoading(true);
+                // Call n8n webhook
+                const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        intent: 'fetch_trip',
+                        tripId: id
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch trip details');
+                }
+
+                const data = await response.json();
+
+                // Handle different response structures (array or single object)
+                const tripDataRaw = Array.isArray(data) ? (data[0].json || data[0]) : (data.json || data);
+
+                // Map response to UI format
+                const mappedTrip = {
+                    id: tripDataRaw.itinerary_id || id,
+                    location: `${tripDataRaw.destination_city || ''}, ${tripDataRaw.destination_country || ''}`,
+                    title: tripDataRaw.headline || `Trip to ${tripDataRaw.destination_city || 'Unknown'}`,
+                    description: tripDataRaw.description || '',
+                    // Simple image fallback logic similar to Discover page
+                    image: determineImage(tripDataRaw.destination_city || ''),
+                    creator: {
+                        name: tripDataRaw.user_id || 'AI Traveler',
+                        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=faces',
+                        subscribed: false
+                    },
+                    keyLocations: tripDataRaw.key_locations || [],
+                    // Map itinerary items
+                    itinerary: (tripDataRaw.itinerary_outline || []).map(item => ({
+                        day: item.day,
+                        title: item.title,
+                        description: item.description
+                    })),
+                    vibes: tripDataRaw.vibes || [],
+                    stops: tripDataRaw.duration_days || 1
+                };
+
+                setTrip(mappedTrip);
+            } catch (err) {
+                console.error('Error fetching trip:', err);
+                setError('Failed to load trip details. Please try again.');
+            } finally {
+                setLoading(false);
             }
-        ],
-        vibes: ['Peaceful', 'Green Escape', 'Wellness', 'Cultural Immersion', 'Serene'],
-        stops: 5
+        };
+
+        if (id) {
+            fetchTripDetails();
+        }
+    }, [id]);
+
+    // Helper to pick a random-ish image based on destination
+    const determineImage = (destination) => {
+        const d = destination.toLowerCase();
+        if (d.includes('tokyo')) return 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&q=80';
+        if (d.includes('bali')) return 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1200&q=80';
+        if (d.includes('maldives')) return 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80';
+        if (d.includes('paris')) return 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80';
+        return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80'; // Default
     };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-600"></div>
+            </div>
+        );
+    }
+
+    if (error || !trip) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+                <div className="text-xl text-red-600 mb-4">{error || 'Trip not found'}</div>
+                <Button onClick={() => navigate('/discover')}>Back to Discover</Button>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -88,8 +142,8 @@ const TripDetail = () => {
                     {/* Hero Image */}
                     <div className="relative w-full h-96 rounded-2xl overflow-hidden mb-6 shadow-lg">
                         <img
-                            src={tripData.image}
-                            alt={tripData.title}
+                            src={trip.image}
+                            alt={trip.title}
                             className="w-full h-full object-cover"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
@@ -97,23 +151,23 @@ const TripDetail = () => {
 
                     {/* Title */}
                     <h1 className="text-4xl font-display font-bold text-gray-900 mb-4">
-                        {tripData.title}
+                        {trip.title}
                     </h1>
 
                     {/* Description */}
                     <p className="text-gray-700 leading-relaxed mb-6 text-lg">
-                        {tripData.description}
+                        {trip.description}
                     </p>
 
                     {/* Creator Info */}
                     <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
                         <div className="flex items-center space-x-3">
                             <img
-                                src={tripData.creator.avatar}
-                                alt={tripData.creator.name}
+                                src={trip.creator.avatar}
+                                alt={trip.creator.name}
                                 className="w-12 h-12 rounded-full object-cover"
                             />
-                            <span className="font-semibold text-gray-900">{tripData.creator.name}</span>
+                            <span className="font-semibold text-gray-900">{trip.creator.name}</span>
                         </div>
                         <Button size="sm" variant="outline">
                             Subscribe
@@ -153,58 +207,64 @@ const TripDetail = () => {
                             {isSummaryExpanded && (
                                 <div className="mt-6 space-y-6">
                                     {/* Key Locations */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Locations</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {tripData.keyLocations.map((location, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
-                                                >
-                                                    {location}
-                                                </span>
-                                            ))}
+                                    {trip.keyLocations && trip.keyLocations.length > 0 && (
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Key Locations</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {trip.keyLocations.map((location, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium"
+                                                    >
+                                                        {location}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Itinerary Outline */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Itinerary Outline</h3>
-                                        <div className="space-y-4">
-                                            {tripData.itinerary.map((day, index) => (
-                                                <div key={index} className="flex space-x-4">
-                                                    <div className="flex-shrink-0">
-                                                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                                            <Calendar className="w-5 h-5 text-purple-600" />
+                                    {trip.itinerary && trip.itinerary.length > 0 && (
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-4">Itinerary Outline</h3>
+                                            <div className="space-y-4">
+                                                {trip.itinerary.map((day, index) => (
+                                                    <div key={index} className="flex space-x-4">
+                                                        <div className="flex-shrink-0">
+                                                            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                                                                <Calendar className="w-5 h-5 text-purple-600" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h4 className="font-semibold text-gray-900 mb-1">
+                                                                Day {day.day}: {day.title}
+                                                            </h4>
+                                                            <p className="text-gray-600 text-sm leading-relaxed">
+                                                                {day.description}
+                                                            </p>
                                                         </div>
                                                     </div>
-                                                    <div className="flex-1">
-                                                        <h4 className="font-semibold text-gray-900 mb-1">
-                                                            Day {day.day}: {day.title}
-                                                        </h4>
-                                                        <p className="text-gray-600 text-sm leading-relaxed">
-                                                            {day.description}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Vibes */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Vibes</h3>
-                                        <div className="flex flex-wrap gap-2">
-                                            {tripData.vibes.map((vibe, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="px-4 py-2 bg-pink-50 text-pink-600 rounded-full text-sm font-medium border border-pink-200"
-                                                >
-                                                    {vibe}
-                                                </span>
-                                            ))}
+                                    {trip.vibes && trip.vibes.length > 0 && (
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Vibes</h3>
+                                            <div className="flex flex-wrap gap-2">
+                                                {trip.vibes.map((vibe, index) => (
+                                                    <span
+                                                        key={index}
+                                                        className="px-4 py-2 bg-pink-50 text-pink-600 rounded-full text-sm font-medium border border-pink-200"
+                                                    >
+                                                        {vibe}
+                                                    </span>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </div>
                             )}
                         </CardContent>
