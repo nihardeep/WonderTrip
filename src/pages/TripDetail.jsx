@@ -98,6 +98,21 @@ const TripDetail = () => {
                 tripDataRaw = data.json || data || {};
             }
 
+            // SMART MERGE: Check if rich data is hidden inside 'raw_json'
+            // The n8n response might wrap the AI output in a 'raw_json' field
+            if (tripDataRaw.raw_json) {
+                try {
+                    const rawInner = Array.isArray(tripDataRaw.raw_json) ? tripDataRaw.raw_json[0] : tripDataRaw.raw_json;
+                    if (rawInner) {
+                        console.log('Merging nested raw_json data...');
+                        // We merge rawInner ON TOP of tripDataRaw so nested fields (like itinerary_outline) take precedence
+                        tripDataRaw = { ...tripDataRaw, ...rawInner };
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse nested raw_json', e);
+                }
+            }
+
             // CRITICAL VALIDATION: If we don't have basic data, treat as error
             // We check for headline/title OR destination OR itinerary
             const isValidTrip = tripDataRaw.headline || tripDataRaw.title || tripDataRaw.destination_city || (tripDataRaw.itinerary_outline && tripDataRaw.itinerary_outline.length > 0);
