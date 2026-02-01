@@ -123,7 +123,10 @@ const TripDetail = () => {
                 itinerary: Array.isArray(tripDataRaw.itinerary_outline) ? tripDataRaw.itinerary_outline.map(item => ({
                     day: item.day || 1,
                     title: item.title || 'Day Title',
-                    description: item.description || ''
+                    description: item.description || '',
+                    activities: item.activities || null,
+                    meals: item.meals || null,
+                    how_to_reach: item.how_to_reach || null
                 })) : [],
                 vibes: Array.isArray(tripDataRaw.vibes) ? tripDataRaw.vibes : [],
                 stops: tripDataRaw.duration_days || 1
@@ -345,9 +348,57 @@ const TripDetail = () => {
                                                             <h4 className="font-semibold text-gray-900 mb-1">
                                                                 Day {day.day}: {day.title}
                                                             </h4>
-                                                            <p className="text-gray-600 text-sm leading-relaxed">
+                                                            <p className="text-gray-600 text-sm leading-relaxed mb-4">
                                                                 {day.description}
                                                             </p>
+
+                                                            {/* Activities */}
+                                                            {day.activities && (
+                                                                <div className="mb-4 bg-purple-50 p-4 rounded-xl border border-purple-100">
+                                                                    <h5 className="text-sm font-semibold text-purple-900 mb-2 flex items-center">
+                                                                        <span>🏃‍♂️ Activities</span>
+                                                                    </h5>
+                                                                    <p className="text-gray-700 text-sm leading-relaxed">{day.activities}</p>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Meals Grid */}
+                                                            {day.meals && (
+                                                                <div className="mb-4">
+                                                                    <h5 className="text-sm font-semibold text-gray-900 mb-3">🍽️ Meals</h5>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                        {day.meals.breakfast && (
+                                                                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
+                                                                                <span className="font-semibold text-orange-600 block mb-1 text-xs uppercase tracking-wider">Breakfast</span>
+                                                                                <p className="text-gray-700 line-clamp-3">{day.meals.breakfast.suggestion || day.meals.breakfast}</p>
+                                                                            </div>
+                                                                        )}
+                                                                        {day.meals.lunch && (
+                                                                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
+                                                                                <span className="font-semibold text-green-600 block mb-1 text-xs uppercase tracking-wider">Lunch</span>
+                                                                                <p className="text-gray-700 line-clamp-3">{day.meals.lunch.suggestion || day.meals.lunch}</p>
+                                                                            </div>
+                                                                        )}
+                                                                        {day.meals.dinner && (
+                                                                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
+                                                                                <span className="font-semibold text-indigo-600 block mb-1 text-xs uppercase tracking-wider">Dinner</span>
+                                                                                <p className="text-gray-700 line-clamp-3">{day.meals.dinner.suggestion || day.meals.dinner}</p>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* How to Reach */}
+                                                            {day.how_to_reach && (
+                                                                <div className="bg-blue-50 p-3 rounded-lg text-sm border border-blue-100 flex items-start gap-3">
+                                                                    <span className="text-xl">🗺️</span>
+                                                                    <div>
+                                                                        <span className="font-semibold text-blue-900 block mb-1">How to reach</span>
+                                                                        <p className="text-blue-800 leading-relaxed">{day.how_to_reach}</p>
+                                                                    </div>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ))}
