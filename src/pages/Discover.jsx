@@ -722,8 +722,8 @@ const Discover = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          console.log('Navigating to trip:', post.id);
-                          navigate(`/trip/${post.id}`);
+                          console.log('Opening trip in new tab:', post.id);
+                          window.open(`/trip/${post.id}`, '_blank');
                         }}
                       >
                         View Trip
