@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, Share2, ChevronDown, ChevronUp, MapPin, Calendar } from 'lucide-react';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
-import ChatBot from '../components/common/ChatBot';
+// import ChatBot from '../components/common/ChatBot';
 
 const TripDetail = () => {
     const { id } = useParams();
@@ -13,8 +13,15 @@ const TripDetail = () => {
     const [trip, setTrip] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const [loadingText, setLoadingText] = useState('Connecting to global travel database...');
+
+    // DEBUG: On-screen logs
+    const [logs, setLogs] = useState([]);
+    const addLog = (msg) => {
+        const time = new Date().toISOString().split('T')[1].split('.')[0];
+        setLogs(prev => [...prev, `${time} - ${msg}`]);
+        console.log(`[TripDetail] ${msg}`);
+    };
 
     useEffect(() => {
         let textInterval;
@@ -36,20 +43,19 @@ const TripDetail = () => {
     }, [loading]);
 
     const fetchTripDetails = async () => {
-        console.log('Starting fetch for trip ID:', id);
+        addLog(`Starting fetch for trip ID: ${id}`);
         setLoading(true);
         setError(null);
 
         try {
             // PROMISE RACE FOR TIMEOUT
-            // Create a promise that rejects after 10 seconds
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => {
                     reject(new Error('TIMEOUT'));
                 }, 10000);
             });
 
-            // The actual fetch request
+            addLog('Sending POST request to n8n...');
             const fetchPromise = fetch('https://wondertrip.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
                 method: 'POST',
                 headers: {
@@ -63,48 +69,46 @@ const TripDetail = () => {
 
             // Race them!
             const response = await Promise.race([fetchPromise, timeoutPromise]);
-
-            console.log('Fetch response status:', response.status);
+            addLog(`Response status: ${response.status}`);
 
             let data;
             try {
                 const contentType = response.headers.get("content-type");
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     data = await response.json();
+                    addLog('Parsed JSON response');
                 } else {
                     const text = await response.text();
-                    console.log('Received non-JSON response:', text);
-                    data = {}; // Fallback to empty object
+                    addLog(`Received non-JSON response: ${text.substring(0, 50)}...`);
+                    data = {};
                 }
             } catch (parseError) {
-                console.error('Error parsing response:', parseError);
+                addLog(`Error parsing response: ${parseError.message}`);
                 data = {};
             }
 
-            console.log('Trip Data Raw:', data);
-
             // DATA MAPPING
-            // Handle different response structures gracefully
             let tripDataRaw = {};
             if (Array.isArray(data) && data.length > 0) {
                 // Try to find the specific trip that matches our ID
                 const foundTrip = data.find(item => {
                     const itemData = item.json || item;
-                    return itemData.itinerary_id === id;
+                    // Check both top-level and json-level structure
+                    return (itemData.itinerary_id === id) || (item.itinerary_id === id);
                 });
 
                 if (foundTrip) {
-                    console.log('Found matching trip in response array');
+                    addLog('Found matching trip in response array');
                     tripDataRaw = foundTrip.json || foundTrip;
                 } else {
-                    console.log('Exact ID match not found, using first item as fallback');
+                    addLog('Exact ID match not found, using first item as fallback');
                     tripDataRaw = data[0].json || data[0];
                 }
             } else {
                 tripDataRaw = data.json || data || {};
             }
 
-            // Construct mapped trip with SAFE fallbacks for every field
+            // Construct mapped trip with SAFE fallbacks
             const mappedTrip = {
                 id: tripDataRaw.itinerary_id || id,
                 location: tripDataRaw.destination_city ? `${tripDataRaw.destination_city}, ${tripDataRaw.destination_country || ''}` : 'Location Loading...',
@@ -126,15 +130,14 @@ const TripDetail = () => {
                 stops: tripDataRaw.duration_days || 1
             };
 
-            console.log('Mapped Trip:', mappedTrip);
             setTrip(mappedTrip);
 
         } catch (err) {
-            console.error('CRITICAL ERROR in fetchTripDetails:', err);
+            addLog(`CRITICAL ERROR: ${err.message}`);
             if (err.message === 'TIMEOUT') {
                 setError('TIMEOUT');
             } else {
-                setError('Failed to load trip. Please checks logs.');
+                setError(err.message || 'Failed to load trip');
             }
         } finally {
             setLoading(false);
@@ -142,17 +145,16 @@ const TripDetail = () => {
     };
 
     useEffect(() => {
-        console.log('TripDetail mounted with ID:', id);
+        addLog(`TripDetail mounted with ID: ${id}`);
         if (id) {
             fetchTripDetails();
         } else {
-            console.warn('No ID provided to TripDetail');
+            addLog('WARN: No ID provided');
             setLoading(false);
             setError('No Trip ID provided');
         }
     }, [id]);
 
-    // Helper to pick a random-ish image based on destination
     const determineImage = (destination) => {
         if (!destination) return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80';
         const d = destination.toLowerCase();
@@ -160,7 +162,7 @@ const TripDetail = () => {
         if (d.includes('bali')) return 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=1200&q=80';
         if (d.includes('maldives')) return 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80';
         if (d.includes('paris')) return 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=80';
-        return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80'; // Default
+        return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80';
     };
 
     if (loading) {
@@ -169,9 +171,14 @@ const TripDetail = () => {
                 <div className="relative">
                     <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-purple-600"></div>
                 </div>
-                <div className="text-center max-w-md">
+                <div className="text-center max-w-md w-full">
                     <p className="text-lg font-medium text-purple-900 animate-pulse">{loadingText}</p>
-                    <p className="text-sm text-gray-500 mt-2">Putting together your dream itinerary...</p>
+
+                    {/* DEBUG CONSOLE */}
+                    <div className="mt-8 mx-auto p-3 bg-gray-900 text-green-400 text-xs text-left font-mono rounded-lg shadow-inner overflow-auto h-48 w-full max-w-sm border border-gray-700">
+                        <div className="border-b border-gray-700 pb-1 mb-2 text-gray-400 font-bold">DEBUG CONSOLE</div>
+                        {logs.map((l, i) => <div key={i} className="whitespace-nowrap">{l}</div>)}
+                    </div>
                 </div>
             </div>
         );
@@ -187,16 +194,21 @@ const TripDetail = () => {
                     <h2 className="text-2xl font-bold text-gray-900 mb-3">
                         Oops! Our AI is taking a power nap.
                     </h2>
-                    <p className="text-gray-600 mb-8 text-lg">
+                    <p className="text-gray-600 mb-4 text-lg">
                         {(typeof error === 'string' && error === 'TIMEOUT') ? 'The request timed out.' : 'Unable to load trip details.'}
                     </p>
+
+                    {/* DEBUG CONSOLE IN ERROR */}
+                    <div className="mb-6 p-3 bg-gray-100 text-gray-700 text-xs text-left font-mono rounded overflow-auto h-32 w-full border border-gray-300">
+                        {logs.map((l, i) => <div key={i}>{l}</div>)}
+                    </div>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button
                             onClick={fetchTripDetails}
                             className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3"
                         >
-                            Wake up AI! ⏰
+                            Retry Connection ⏰
                         </Button>
                         <Button
                             variant="outline"
@@ -212,19 +224,16 @@ const TripDetail = () => {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header - matching Discover page */}
+            {/* Header */}
             <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
                 <div className="container-custom">
                     <div className="flex items-center justify-between h-16">
-                        {/* Logo */}
                         <Link to="/" className="flex items-center space-x-2">
                             <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
                                 <MapPin className="w-5 h-5 text-white" />
                             </div>
                             <span className="text-xl font-display font-bold text-gray-900">WonderTrip</span>
                         </Link>
-
-                        {/* Back to Discover */}
                         <button
                             onClick={() => navigate('/discover')}
                             className="flex items-center space-x-2 text-gray-600 hover:text-purple-600 transition-colors"
@@ -232,8 +241,6 @@ const TripDetail = () => {
                             <ArrowLeft className="w-5 h-5" />
                             <span className="font-medium">Back to Discover</span>
                         </button>
-
-                        {/* User Profile */}
                         <img
                             src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=faces"
                             alt="User profile"
@@ -244,7 +251,7 @@ const TripDetail = () => {
             </header>
 
             <div className="container-custom py-8">
-                <div className="max-w-3xl mx-auto">{/* Matching Discover's max-w-3xl */}
+                <div className="max-w-3xl mx-auto">
                     {/* Hero Image */}
                     <div className="relative w-full h-96 rounded-2xl overflow-hidden mb-6 shadow-lg">
                         <img
