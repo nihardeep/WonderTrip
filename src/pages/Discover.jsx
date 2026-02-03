@@ -169,7 +169,15 @@ const Discover = () => {
   // Update selectedDestination input when URL changes
   useEffect(() => {
     if (searchQuery) {
-      setSelectedDestination(searchQuery);
+      // Don't auto-fill if it's the "all featured" query used by the Home page button
+      // We look for the comma-separated list of featured destinations
+      const isFeaturedQuery = searchQuery.includes('Maldives,Hanoi,Kuala Lumpur,Tokyo,Bali,Ibiza');
+
+      if (!isFeaturedQuery) {
+        setSelectedDestination(searchQuery);
+      } else {
+        setSelectedDestination(''); // Keep input clean for this case
+      }
     }
   }, [searchQuery]);
 
