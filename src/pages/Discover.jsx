@@ -19,10 +19,19 @@ const Discover = () => {
   // Helper to determine if we should auto-fill the search input
   const shouldAutoFillInput = (query) => {
     if (!query) return false;
-    // Check if it looks like our curated list (contains at least 3 of our key destinations)
-    const indicators = ['Maldives', 'Tokyo', 'Bali', 'Ibiza'];
-    const matchCount = indicators.filter(i => query.includes(i)).length;
-    return matchCount < 3;
+
+    // 1. Structure Check: If it has multiple commas, it's likely a list (e.g. "Maldives, Tokyo...")
+    // "City, Country" has 1 comma (2 parts). Our list has 5+ commas.
+    // So if > 2 parts, treat as list -> don't auto-fill.
+    if (query.split(',').length > 2) return false;
+
+    // 2. Content Check: Case-insensitive match for our featured keys
+    const indicators = ['maldives', 'tokyo', 'bali', 'ibiza'];
+    const qLower = query.toLowerCase();
+    const matchCount = indicators.filter(i => qLower.includes(i)).length;
+
+    // If it contains multiple featured destinations, definitely don't auto-fill
+    return matchCount < 2;
   };
 
   const [selectedDestination, setSelectedDestination] = useState(() => {
