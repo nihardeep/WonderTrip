@@ -77,15 +77,25 @@ const Login = () => {
       const data = await response.json();
 
       // Handle n8n response which might be an array or object
-      // User reported format: [{ "status": "success", ... }] or [{ "json": { "status": "error", ... } }]
       const responseItem = Array.isArray(data) ? data[0] : data;
-      const status = responseItem.status || responseItem.json?.status;
-      const message = responseItem.message || responseItem.json?.message;
+      // Handle wrapped json or direct object
+      const itemData = responseItem.json || responseItem;
+
+      const status = itemData.status;
+      const message = itemData.message;
+      const success = itemData.success; // Check for boolean success
+      const statusCode = itemData.statusCode; // Check for 200 OK
 
       console.log('Webhook Data:', data);
-      console.log('Resolved Status:', status);
+      console.log('Resolved Status:', status, 'Success:', success, 'StatusCode:', statusCode);
 
-      if (status && status.toString().trim().toLowerCase() === 'success') {
+      // Check for success (support older string format and new boolean/code format)
+      const isSuccess =
+        (status && status.toString().trim().toLowerCase() === 'success') ||
+        (success === true) ||
+        (statusCode === 200);
+
+      if (isSuccess) {
         console.log('Login successful. Starting session and navigating...');
         // Start session
         try {
@@ -98,9 +108,9 @@ const Login = () => {
         }
         return;
       } else {
-        console.log('Login failed with status:', status);
+        console.log('Login failed with status:', status || success || statusCode);
         // alert(`Login Failed. Status: ${status}, Message: ${message}`);
-        setErrors({ general: 'Invalid email or password.' });
+        setErrors({ general: message || 'Invalid email or password.' });
       }
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
