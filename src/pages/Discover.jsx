@@ -15,7 +15,19 @@ import { NAV_LINKS } from '../data/constants';
 const Discover = () => {
   const [searchParams] = useSearchParams();
   const searchQuery = searchParams.get('search') || '';
-  const [selectedDestination, setSelectedDestination] = useState(searchQuery || '');
+
+  // Helper to determine if we should auto-fill the search input
+  const shouldAutoFillInput = (query) => {
+    if (!query) return false;
+    // Check if it looks like our curated list (contains at least 3 of our key destinations)
+    const indicators = ['Maldives', 'Tokyo', 'Bali', 'Ibiza'];
+    const matchCount = indicators.filter(i => query.includes(i)).length;
+    return matchCount < 3;
+  };
+
+  const [selectedDestination, setSelectedDestination] = useState(() => {
+    return shouldAutoFillInput(searchQuery) ? searchQuery : '';
+  });
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [adults, setAdults] = useState(1);
@@ -169,14 +181,10 @@ const Discover = () => {
   // Update selectedDestination input when URL changes
   useEffect(() => {
     if (searchQuery) {
-      // Don't auto-fill if it's the "all featured" query used by the Home page button
-      // We look for the comma-separated list of featured destinations
-      const isFeaturedQuery = searchQuery.includes('Maldives,Hanoi,Kuala Lumpur,Tokyo,Bali,Ibiza');
-
-      if (!isFeaturedQuery) {
+      if (shouldAutoFillInput(searchQuery)) {
         setSelectedDestination(searchQuery);
       } else {
-        setSelectedDestination(''); // Keep input clean for this case
+        setSelectedDestination(''); // Keep input clean
       }
     }
   }, [searchQuery]);
