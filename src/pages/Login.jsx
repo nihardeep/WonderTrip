@@ -66,7 +66,7 @@ const Login = () => {
 
     // Send data to n8n webhook
     try {
-      const response = await fetch('https://wondertrip.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+      const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
