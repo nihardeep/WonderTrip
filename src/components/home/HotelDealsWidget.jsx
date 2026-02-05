@@ -15,11 +15,12 @@ const HotelDealsWidget = () => {
         document.body.appendChild(script);
 
         return () => {
-            // Cleanup if needed? Usually remote widgets are tricky to cleanup, 
-            // but we can leave it or remove script on unmount. 
-            // For global scripts, often better to leave it if it might be reused, 
-            // but cleaning up is cleaner.
-            // document.body.removeChild(script); 
+            // Cleanup script on unmount to ensure it re-runs on next mount
+            // This fixes the issue where the iframe doesn't load on page navigation
+            const existingScript = document.getElementById('klook-affiliate-script');
+            if (existingScript) {
+                document.body.removeChild(existingScript);
+            }
         };
     }, []);
 
