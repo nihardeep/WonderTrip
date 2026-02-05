@@ -52,14 +52,25 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary-600" />
-                  </div>
-                  <span className="text-gray-700 font-medium">
+                <Link to="/profile" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-xs ring-2 ring-transparent hover:ring-primary-200 transition-all">
+                      {user?.name
+                        ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                        : <User className="w-4 h-4 text-primary-600" />
+                      }
+                    </div>
+                  )}
+                  <span className="text-gray-700 font-medium whitespace-nowrap">
                     {user?.name || 'User'}
                   </span>
-                </div>
+                </Link>
                 <Link
                   to="/profile"
                   className="text-gray-600 hover:text-primary-600 transition-colors"
@@ -122,9 +133,19 @@ const Header = () => {
                 {isAuthenticated ? (
                   <div className="flex flex-col space-y-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-primary-600" />
-                      </div>
+                      <Link to="/profile" className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-sm ring-2 ring-transparent hover:ring-primary-200 transition-all">
+                        {user?.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          user?.name
+                            ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                            : <User className="w-5 h-5 text-primary-600" />
+                        )}
+                      </Link>
                       <div>
                         <p className="font-medium text-gray-900">{user?.name || 'User'}</p>
                         <p className="text-sm text-gray-500">{user?.email}</p>

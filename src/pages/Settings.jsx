@@ -18,7 +18,21 @@ const Settings = () => {
     address: '',
     city: '',
     country: '',
+    bio: user?.bio || '', // Added bio
+    avatar: null, // Added avatar file
+    avatarPreview: user?.avatar || null // Preview for avatar
   });
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        avatar: file,
+        avatarPreview: URL.createObjectURL(file)
+      }));
+    }
+  };
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: User },
@@ -96,41 +110,74 @@ const Settings = () => {
 
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-start space-x-6">
-                  <div className="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center">
-                    <User className="w-10 h-10 text-primary-600" />
-                  </div>
-
-                  <div className="flex-1">
+                <div>
+                  <div className="w-full">
                     {isEditing ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input
-                          label="First Name"
-                          value={formData.firstName}
-                          onChange={(e) => handleInputChange('firstName', e.target.value)}
-                        />
-                        <Input
-                          label="Last Name"
-                          value={formData.lastName}
-                          onChange={(e) => handleInputChange('lastName', e.target.value)}
-                        />
-                        <Input
-                          label="Email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => handleInputChange('email', e.target.value)}
-                        />
-                        <Input
-                          label="Phone"
-                          value={formData.phone}
-                          onChange={(e) => handleInputChange('phone', e.target.value)}
-                        />
-                        <Input
-                          label="Address"
-                          value={formData.address}
-                          onChange={(e) => handleInputChange('address', e.target.value)}
-                        />
-                        <div className="flex space-x-2">
+                      <div className="space-y-4">
+                        {/* Avatar Upload */}
+                        <div className="flex items-center space-x-4 mb-4">
+                          <div className="w-20 h-20 bg-gray-100 rounded-full overflow-hidden relative">
+                            {formData.avatarPreview ? (
+                              <img src={formData.avatarPreview} alt="Profile Preview" className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="w-10 h-10 text-gray-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
+                            )}
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileChange}
+                              className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Input
+                            label="First Name"
+                            value={formData.firstName}
+                            onChange={(e) => handleInputChange('firstName', e.target.value)}
+                          />
+                          <Input
+                            label="Last Name"
+                            value={formData.lastName}
+                            onChange={(e) => handleInputChange('lastName', e.target.value)}
+                          />
+                        </div>
+
+                        {/* Bio Field */}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Bio / Description</label>
+                          <textarea
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                            rows="4"
+                            placeholder="Tell us about yourself..."
+                            value={formData.bio}
+                            onChange={(e) => handleInputChange('bio', e.target.value)}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <Input
+                            label="Email"
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                          />
+                          <Input
+                            label="Phone"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                          />
+                          <Input
+                            label="Address"
+                            value={formData.address}
+                            onChange={(e) => handleInputChange('address', e.target.value)}
+                          />
+                        </div>
+                        <div className="flex space-x-2 pt-2">
                           <Button onClick={handleSaveProfile}>Save Changes</Button>
                           <Button variant="outline" onClick={() => setIsEditing(false)}>
                             Cancel
@@ -139,8 +186,28 @@ const Settings = () => {
                       </div>
                     ) : (
                       <div>
-                        <h3 className="text-xl font-semibold mb-2">{user?.name}</h3>
-                        <p className="text-gray-600 mb-4">{user?.email}</p>
+                        <div className="flex items-center space-x-4 mb-6">
+                          {/* View Mode Avatar */}
+                          {user?.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-16 h-16 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center text-primary-700 font-bold text-xl">
+                              {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : <User />}
+                            </div>
+                          )}
+                          <div>
+                            <h3 className="text-xl font-semibold">{user?.name}</h3>
+                            <p className="text-gray-600">{user?.email}</p>
+                          </div>
+                        </div>
+
+                        {/* View Mode Bio */}
+                        {user?.bio && (
+                          <div className="mb-6">
+                            <h4 className="font-medium mb-2">About Me</h4>
+                            <p className="text-gray-600 text-sm leading-relaxed">{user.bio}</p>
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>

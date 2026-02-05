@@ -11,12 +11,12 @@ const UserProfile = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // Mock user profile data
+    // Mock user profile data (with fallbacks to real user data)
     const profileData = {
         name: user?.name || 'Jessica Lee',
         email: user?.email || 'jessica@wondertrip.com',
-        bio: 'Adventure seeker, storyteller, and digital nomad exploring hidden gems. Join me as I discover unique cultures, breathtaking landscapes, and unforgettable experiences around the globe.',
-        avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=faces',
+        bio: user?.bio || 'Adventure seeker, storyteller, and digital nomad exploring hidden gems. Join me as I discover unique cultures, breathtaking landscapes, and unforgettable experiences around the globe.',
+        avatar: user?.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=faces',
         banner: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=80',
         stats: {
             posts: 24,
@@ -132,8 +132,8 @@ const UserProfile = () => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center space-x-3 px-4 py-3 rounded-lg mb-1 transition-colors ${item.active
-                                        ? 'bg-purple-50 text-purple-700'
-                                        : 'text-gray-700 hover:bg-gray-50'
+                                    ? 'bg-purple-50 text-purple-700'
+                                    : 'text-gray-700 hover:bg-gray-50'
                                     }`}
                             >
                                 <item.icon className={`w-5 h-5 ${item.active ? 'text-purple-600' : ''}`} />

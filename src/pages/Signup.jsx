@@ -15,6 +15,8 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
     agreeToTerms: false,
+    avatar: null, // Added avatar
+    avatarPreview: null
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -28,13 +30,33 @@ const Signup = () => {
       ...prev,
       [field]: value
     }));
-    // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
         ...prev,
-        [field]: ''
+        avatar: file,
+        avatarPreview: URL.createObjectURL(file)
       }));
     }
+  };
+
+  const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
   };
 
   const validateForm = () => {
@@ -83,6 +105,15 @@ const Signup = () => {
 
     if (!validateForm()) return;
 
+    let base64Avatar = '';
+    if (formData.avatar) {
+      try {
+        base64Avatar = await convertBase64(formData.avatar);
+      } catch (error) {
+        console.error("Error converting image:", error);
+      }
+    }
+
     const signupData = {
       name: formData.name,
       email: formData.email,
@@ -90,7 +121,8 @@ const Signup = () => {
       password: formData.password,
       terms: formData.agreeToTerms ? 'Accepted' : 'Rejected',
       action: 'signup',
-      sessionId: activeSessionId
+      sessionId: activeSessionId,
+      avatar: base64Avatar // Add avatar to payload
     };
 
     // Send data to n8n webhook (Production)
@@ -115,15 +147,6 @@ const Signup = () => {
       console.error('Failed to send data to webhook:', error);
       setErrors({ general: 'Connection error. Please try again later.' });
     }
-
-    // Backend signup is now handled via webhook -> n8n -> backend
-    // const result = await signup(signupData);
-
-    // if (result.success) {
-    //   navigate('/');
-    // } else {
-    //   setErrors({ general: result.error });
-    // }
   };
 
   return (
@@ -146,6 +169,26 @@ const Signup = () => {
                   <p className="text-red-600 text-sm">{errors.general}</p>
                 </div>
               )}
+
+              {/* Avatar Upload */}
+              <div className="flex flex-col items-center mb-6">
+                <div className="w-24 h-24 bg-gray-100 rounded-full mb-3 flex items-center justify-center overflow-hidden relative border border-gray-200">
+                  {formData.avatarPreview ? (
+                    <img src={formData.avatarPreview} alt="Avatar Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-10 h-10 text-gray-400" />
+                  )}
+                </div>
+                <label className="cursor-pointer text-sm text-primary-600 font-medium hover:text-primary-700">
+                  <span>Upload Profile Picture</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              </div>
 
               <Input
                 label="Full Name"

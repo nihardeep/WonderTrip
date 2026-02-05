@@ -510,15 +510,20 @@ const Discover = () => {
             {/* User Profile */}
             {user ? (
               user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt="User profile"
-                  className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
-                />
+                <Link to="/profile">
+                  <img
+                    src={user.avatar}
+                    alt="User profile"
+                    className="w-10 h-10 rounded-full object-cover cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all"
+                  />
+                </Link>
               ) : (
-                <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all text-primary-600">
-                  <User className="w-6 h-6" />
-                </div>
+                <Link to="/profile" className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-primary-500 transition-all text-primary-700 font-bold text-sm">
+                  {user?.name
+                    ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                    : <User className="w-6 h-6 text-primary-600" />
+                  }
+                </Link>
               )
             ) : (
               <div className="flex items-center space-x-4">
@@ -976,24 +981,48 @@ const Discover = () => {
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Upload Video File
                       </label>
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors cursor-pointer">
-                        <input
-                          type="file"
-                          accept="video/*"
-                          onChange={(e) => handleFileChange(e, 'video')}
-                          className="hidden"
-                          id="video-upload"
-                        />
-                        <label htmlFor="video-upload" className="cursor-pointer">
-                          <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                          <p className="text-sm text-gray-600">
-                            Click to upload or drag and drop
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {formData.videoFile ? formData.videoFile.name : 'MP4, MOV, AVI (max 500MB)'}
-                          </p>
-                        </label>
-                      </div>
+                      {!formData.videoFile ? (
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary-400 transition-colors cursor-pointer">
+                          <input
+                            type="file"
+                            accept="video/*"
+                            onChange={(e) => handleFileChange(e, 'video')}
+                            className="hidden"
+                            id="video-upload"
+                          />
+                          <label htmlFor="video-upload" className="cursor-pointer">
+                            <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                            <p className="text-sm text-gray-600">
+                              Click to upload or drag and drop
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              MP4, MOV, AVI (max 500MB)
+                            </p>
+                          </label>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50">
+                          <div className="flex items-center overflow-hidden">
+                            <Video className="w-8 h-8 text-primary-600 mr-3 flex-shrink-0" />
+                            <div className="truncate">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {formData.videoFile.name}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {(formData.videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setFormData(prev => ({ ...prev, videoFile: null }))}
+                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            title="Remove video"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1027,13 +1056,25 @@ const Discover = () => {
                     </div>
                     {formData.photos.length > 0 && (
                       <div className="grid grid-cols-3 gap-2 mt-4">
-                        {formData.photos.slice(0, 6).map((photo, index) => (
-                          <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        {formData.photos.map((photo, index) => (
+                          <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative group">
                             <img
                               src={URL.createObjectURL(photo)}
                               alt={`Preview ${index + 1}`}
                               className="w-full h-full object-cover"
                             />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newPhotos = [...formData.photos];
+                                newPhotos.splice(index, 1);
+                                setFormData(prev => ({ ...prev, photos: newPhotos }));
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-black/50 hover:bg-red-500 text-white rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                              title="Remove photo"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
                         ))}
                       </div>
