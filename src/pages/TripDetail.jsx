@@ -6,6 +6,35 @@ import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
 // import ChatBot from '../components/common/ChatBot';
 
+// Helper Component for Read More
+const ReadMoreText = ({ text, maxLength = 100, className = "" }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    if (!text) return null;
+
+    // If text is short enough, just return it
+    if (text.length <= maxLength) {
+        return <p className={className}>{text}</p>;
+    }
+
+    return (
+        <div className={className}>
+            <p className="inline">
+                {isExpanded ? text : `${text.substring(0, maxLength)}...`}
+            </p>
+            <button
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setIsExpanded(!isExpanded);
+                }}
+                className="ml-1 text-purple-600 hover:text-purple-700 font-medium text-sm inline-flex items-center focus:outline-none"
+            >
+                {isExpanded ? 'Show Less' : 'Read More'}
+            </button>
+        </div>
+    );
+};
+
 const TripDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -288,9 +317,9 @@ const TripDetail = () => {
                     </h1>
 
                     {/* Description */}
-                    <p className="text-gray-700 leading-relaxed mb-6 text-lg">
-                        {trip.description}
-                    </p>
+                    <div className="text-gray-700 leading-relaxed mb-6 text-lg">
+                        <ReadMoreText text={trip.description} maxLength={200} />
+                    </div>
 
                     {/* Creator Info */}
                     <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
@@ -372,9 +401,9 @@ const TripDetail = () => {
                                                             <h4 className="font-semibold text-gray-900 mb-1">
                                                                 Day {day.day}: {day.title}
                                                             </h4>
-                                                            <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                                                                {day.description}
-                                                            </p>
+                                                            <div className="text-gray-600 text-sm leading-relaxed mb-4">
+                                                                <ReadMoreText text={day.description} maxLength={120} />
+                                                            </div>
 
                                                             {/* Activities */}
                                                             {day.activities && (
@@ -382,7 +411,9 @@ const TripDetail = () => {
                                                                     <h5 className="text-sm font-semibold text-purple-900 mb-2 flex items-center">
                                                                         <span>🏃‍♂️ Activities</span>
                                                                     </h5>
-                                                                    <p className="text-gray-700 text-sm leading-relaxed">{day.activities}</p>
+                                                                    <div className="text-gray-700 text-sm leading-relaxed">
+                                                                        <ReadMoreText text={day.activities} maxLength={150} />
+                                                                    </div>
                                                                 </div>
                                                             )}
 
@@ -394,19 +425,25 @@ const TripDetail = () => {
                                                                         {day.meals.breakfast && (
                                                                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
                                                                                 <span className="font-semibold text-orange-600 block mb-1 text-xs uppercase tracking-wider">Breakfast</span>
-                                                                                <p className="text-gray-700 line-clamp-3">{day.meals.breakfast.suggestion || day.meals.breakfast}</p>
+                                                                                <div className="text-gray-700">
+                                                                                    <ReadMoreText text={day.meals.breakfast.suggestion || day.meals.breakfast} maxLength={80} />
+                                                                                </div>
                                                                             </div>
                                                                         )}
                                                                         {day.meals.lunch && (
                                                                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
                                                                                 <span className="font-semibold text-green-600 block mb-1 text-xs uppercase tracking-wider">Lunch</span>
-                                                                                <p className="text-gray-700 line-clamp-3">{day.meals.lunch.suggestion || day.meals.lunch}</p>
+                                                                                <div className="text-gray-700">
+                                                                                    <ReadMoreText text={day.meals.lunch.suggestion || day.meals.lunch} maxLength={80} />
+                                                                                </div>
                                                                             </div>
                                                                         )}
                                                                         {day.meals.dinner && (
                                                                             <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 text-sm">
                                                                                 <span className="font-semibold text-indigo-600 block mb-1 text-xs uppercase tracking-wider">Dinner</span>
-                                                                                <p className="text-gray-700 line-clamp-3">{day.meals.dinner.suggestion || day.meals.dinner}</p>
+                                                                                <div className="text-gray-700">
+                                                                                    <ReadMoreText text={day.meals.dinner.suggestion || day.meals.dinner} maxLength={80} />
+                                                                                </div>
                                                                             </div>
                                                                         )}
                                                                     </div>
@@ -417,9 +454,11 @@ const TripDetail = () => {
                                                             {day.how_to_reach && (
                                                                 <div className="bg-blue-50 p-3 rounded-lg text-sm border border-blue-100 flex items-start gap-3">
                                                                     <span className="text-xl">🗺️</span>
-                                                                    <div>
+                                                                    <div className="flex-1">
                                                                         <span className="font-semibold text-blue-900 block mb-1">How to reach</span>
-                                                                        <p className="text-blue-800 leading-relaxed">{day.how_to_reach}</p>
+                                                                        <div className="text-blue-800 leading-relaxed">
+                                                                            <ReadMoreText text={day.how_to_reach} maxLength={100} />
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             )}
