@@ -2,25 +2,33 @@ import { useEffect } from 'react';
 
 const HotelDealsWidget = () => {
     useEffect(() => {
-        // Check if script is already present to prevent duplicate loading
-        if (document.getElementById('klook-affiliate-script')) return;
+        // Function to load the script
+        const loadScript = () => {
+            // Check if script is already present to prevent duplicate loading
+            if (document.getElementById('klook-affiliate-script')) return;
 
-        const script = document.createElement('script');
-        script.id = 'klook-affiliate-script';
-        script.type = 'text/javascript';
-        script.async = true;
-        script.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
+            const script = document.createElement('script');
+            script.id = 'klook-affiliate-script';
+            script.type = 'text/javascript';
+            script.async = true;
+            script.src = 'https://affiliate.klook.com/widget/fetch-iframe-init.js';
 
-        // Append to body or head
-        document.body.appendChild(script);
+            // Append to head for better reliability
+            document.head.appendChild(script);
+        };
+
+        loadScript();
 
         return () => {
-            // Cleanup script on unmount to ensure it re-runs on next mount
-            // This fixes the issue where the iframe doesn't load on page navigation
+            // Cleanup script on unmount
             const existingScript = document.getElementById('klook-affiliate-script');
             if (existingScript) {
-                document.body.removeChild(existingScript);
+                // Try removing from both head and body just to be safe
+                existingScript.remove();
             }
+
+            // Note: Klook script might modify the DOM or window object, 
+            // but removing the script tag forces a re-fetch on next mount.
         };
     }, []);
 
