@@ -26,7 +26,7 @@ const Discover = () => {
     if (query.split(',').length > 2) return false;
 
     // 2. Content Check: Case-insensitive match for our featured keys
-    const indicators = ['maldives', 'tokyo', 'bali', 'ibiza'];
+    const indicators = ['maldives', 'tokyo', 'bali', 'ibiza', 'rome'];
     const qLower = query.toLowerCase();
     const matchCount = indicators.filter(i => qLower.includes(i)).length;
 
@@ -62,7 +62,7 @@ const Discover = () => {
   const chatBotRef = useRef(null);
 
   // Supported destinations configuration
-  const SUPPORTED_DESTINATIONS = ['maldives', 'hanoi', 'kuala lumpur', 'tokyo', 'bali', 'ibiza'];
+  const SUPPORTED_DESTINATIONS = ['maldives', 'hanoi', 'kuala lumpur', 'tokyo', 'bali', 'ibiza', 'rome'];
 
   // Helper to map n8n response to posts
   const mapN8nResponseToPosts = (data) => {
@@ -80,6 +80,7 @@ const Discover = () => {
         else if (destLower.includes('ibiza')) image = 'https://images.unsplash.com/photo-1560242259-2470a6c6ec2d?w=800&q=80';
         else if (destLower.includes('maldives')) image = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80';
         else if (destLower.includes('paris')) image = 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80';
+        else if (destLower.includes('rome')) image = 'https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800&q=80';
 
         return {
           id: json.itinerary_id || Math.random().toString(36).substr(2, 9),
@@ -107,7 +108,7 @@ const Discover = () => {
     setSearchError(null); // Reset error
 
     // Check supported destinations
-    const effectiveQuery = query || 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali';
+    const effectiveQuery = query || 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali, Ibiza, Rome';
     const queryLower = effectiveQuery.toLowerCase();
 
     // Check if at least one supported destination is in the query (partial match)
