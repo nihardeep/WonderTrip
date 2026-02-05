@@ -102,7 +102,16 @@ const TripDetail = () => {
             // The n8n response might wrap the AI output in a 'raw_json' field
             if (tripDataRaw.raw_json) {
                 try {
-                    const rawInner = Array.isArray(tripDataRaw.raw_json) ? tripDataRaw.raw_json[0] : tripDataRaw.raw_json;
+                    // 1. Get the content of raw_json
+                    let rawInner = Array.isArray(tripDataRaw.raw_json) ? tripDataRaw.raw_json[0] : tripDataRaw.raw_json;
+
+                    // 2. IMPORTANT: If rawInner has an 'output' property (common in n8n AI agent responses),
+                    // we need to dig one level deeper to find the actual fields like 'itinerary_outline'.
+                    if (rawInner && rawInner.output) {
+                        console.log('Found nested output in raw_json, extracting...');
+                        rawInner = { ...rawInner, ...rawInner.output };
+                    }
+
                     if (rawInner) {
                         console.log('Merging nested raw_json data...');
                         // We merge rawInner ON TOP of tripDataRaw so nested fields (like itinerary_outline) take precedence
