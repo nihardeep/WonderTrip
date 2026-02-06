@@ -95,43 +95,25 @@ const Signup = () => {
 
     if (!validateForm()) return;
 
-    // Show loading state (controlled by useAuth loading or local state if strictly needed, 
-    // but better to use local specific state for "creating profile" message control)
-    // For now we rely on the button loading state, but we'll add an overlay below.
+    setIsSubmitting(true);
 
-    let base64Avatar = '';
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', formData.name);
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('phone', formData.phone);
+    formDataToSend.append('password', formData.password);
+    formDataToSend.append('terms', formData.agreeToTerms ? 'Accepted' : 'Rejected');
+    formDataToSend.append('action', 'signup');
+    formDataToSend.append('sessionId', activeSessionId);
+
     if (formData.avatar) {
-      try {
-        base64Avatar = await convertBase64(formData.avatar);
-        console.log("Avatar converted. Length:", base64Avatar.length);
-      } catch (error) {
-        console.error("Error converting image:", error);
-      }
+      formDataToSend.append('avatar', formData.avatar);
     }
 
-    const signupData = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      password: formData.password,
-      terms: formData.agreeToTerms ? 'Accepted' : 'Rejected',
-      action: 'signup',
-      sessionId: activeSessionId,
-      avatar: base64Avatar // Add avatar to payload
-    };
-
-    // Send data to n8n webhook (Production)
     try {
-      // We'll use a local state wrapper if we want to show a full screen loader, 
-      // but 'loading' from useAuth isn't being used here since we do manual fetch.
-      // Let's rely on the form submission flow.
-
       const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(signupData),
+        body: formDataToSend,
       });
 
       const data = await response.json();
@@ -141,7 +123,7 @@ const Signup = () => {
         loginSuccess({
           name: formData.name,
           email: formData.email,
-          avatar: base64Avatar // Optimistically set avatar
+          avatar: formData.avatarPreview // Optimistically use preview URL
         });
         navigate('/discover');
         return;
@@ -151,13 +133,15 @@ const Signup = () => {
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
       setErrors({ general: 'Connection error. Please try again later.' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
       {isSubmitting && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center rounded-2xl">
           <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
           <h3 className="text-xl font-semibold text-gray-800">Creating your profile...</h3>
           <p className="text-gray-500 mt-2">Please wait a moment while we set things up.</p>
@@ -297,7 +281,7 @@ const Signup = () => {
                 type="submit"
                 className="w-full"
                 size="lg"
-                isLoading={loading}
+                isLoading={isSubmitting}
               >
                 Create Account
               </Button>
