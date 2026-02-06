@@ -7,9 +7,10 @@ import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
 
 const Settings = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, activeSessionId } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.name?.split(' ')[0] || '',
     lastName: user?.name?.split(' ')[1] || '',
@@ -34,63 +35,74 @@ const Settings = () => {
     }
   };
 
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: User },
-    { id: 'bookings', label: 'My Bookings', icon: Calendar },
-    { id: 'favorites', label: 'Favorites', icon: Heart },
-    { id: 'settings', label: 'Settings', icon: SettingsIcon },
-  ];
-
-  const mockBookings = [
-    {
-      id: 'BK001',
-      destination: 'Bali Paradise',
-      location: 'Indonesia',
-      checkIn: '2024-02-15',
-      checkOut: '2024-02-22',
-      status: 'confirmed',
-      totalPrice: 1200,
-      image: '/images/destinations/bali.jpg'
-    },
-    {
-      id: 'BK002',
-      destination: 'Swiss Alps Adventure',
-      location: 'Switzerland',
-      checkIn: '2024-03-10',
-      checkOut: '2024-03-15',
-      status: 'upcoming',
-      totalPrice: 1800,
-      image: '/images/destinations/swiss-alps.jpg'
-    }
-  ];
-
-  const mockFavorites = [
-    {
-      id: 1,
-      name: 'Tokyo Explorer',
-      location: 'Japan',
-      rating: 4.7,
-      price: 1500,
-      image: '/images/destinations/tokyo.jpg'
-    },
-    {
-      id: 2,
-      name: 'Santorini Sunset',
-      location: 'Greece',
-      rating: 4.9,
-      price: 1350,
-      image: '/images/destinations/santorini.jpg'
-    }
-  ];
+  const convertBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const fileReader = new FileReader();
+      fileReader.readAsDataURL(file);
+      fileReader.onload = () => {
+        resolve(fileReader.result);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSaveProfile = () => {
-    // Here you would typically save to backend
-    console.log('Saving profile:', formData);
-    setIsEditing(false);
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+
+    let base64Avatar = '';
+    if (formData.avatar) {
+      try {
+        base64Avatar = await convertBase64(formData.avatar);
+      } catch (error) {
+        console.error("Error converting image:", error);
+      }
+    } else if (formData.avatarPreview && formData.avatarPreview.startsWith('data:image')) {
+      // Keep existing base64 if no new file selected but it's already there (edge case, usually handled by checking file)
+      base64Avatar = formData.avatarPreview;
+    }
+
+    const updateData = {
+      action: 'update_profile',
+      sessionId: activeSessionId,
+      name: `${formData.firstName} ${formData.lastName}`.trim(),
+      email: formData.email,
+      phone: formData.phone,
+      bio: formData.bio,
+      avatar: base64Avatar || undefined // Only send if we have a new one, or let backend handle it
+    };
+
+    try {
+      console.log('Sending profile update:', { ...updateData, avatar: base64Avatar ? `Base64 string (${base64Avatar.length} chars)` : 'No change' });
+
+      const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        alert('Profile updated successfully!'); // Simple feedback for now
+        setIsEditing(false);
+        // In a real app, we'd trigger a user refresh here
+      } else {
+        alert('Failed to update profile: ' + (data.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error connecting to server.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderTabContent = () => {
@@ -178,7 +190,7 @@ const Settings = () => {
                           />
                         </div>
                         <div className="flex space-x-2 pt-2">
-                          <Button onClick={handleSaveProfile}>Save Changes</Button>
+                          <Button onClick={handleSaveProfile} isLoading={isSaving}>Save Changes</Button>
                           <Button variant="outline" onClick={() => setIsEditing(false)}>
                             Cancel
                           </Button>

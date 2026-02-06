@@ -109,6 +109,7 @@ const Signup = () => {
     if (formData.avatar) {
       try {
         base64Avatar = await convertBase64(formData.avatar);
+        console.log("Avatar converted. Length:", base64Avatar.length);
       } catch (error) {
         console.error("Error converting image:", error);
       }
