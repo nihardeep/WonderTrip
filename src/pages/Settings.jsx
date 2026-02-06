@@ -35,18 +35,7 @@ const Settings = () => {
     }
   };
 
-  const convertBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(file);
-      fileReader.onload = () => {
-        resolve(fileReader.result);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-  };
+
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -55,37 +44,27 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     setIsSaving(true);
 
-    let base64Avatar = '';
-    if (formData.avatar) {
-      try {
-        base64Avatar = await convertBase64(formData.avatar);
-      } catch (error) {
-        console.error("Error converting image:", error);
-      }
-    } else if (formData.avatarPreview && formData.avatarPreview.startsWith('data:image')) {
-      // Keep existing base64 if no new file selected but it's already there (edge case, usually handled by checking file)
-      base64Avatar = formData.avatarPreview;
-    }
+    // Create FormData for file upload
+    const formDataToSend = new FormData();
+    formDataToSend.append('name', `${formData.firstName} ${formData.lastName}`.trim());
+    formDataToSend.append('email', formData.email);
+    formDataToSend.append('phone', formData.phone);
+    formDataToSend.append('bio', formData.bio);
+    formDataToSend.append('action', 'update_profile');
+    formDataToSend.append('sessionId', activeSessionId);
 
-    const updateData = {
-      action: 'update_profile',
-      sessionId: activeSessionId,
-      name: `${formData.firstName} ${formData.lastName}`.trim(),
-      email: formData.email,
-      phone: formData.phone,
-      bio: formData.bio,
-      avatar: base64Avatar || undefined // Only send if we have a new one, or let backend handle it
-    };
+    if (formData.avatar) {
+      formDataToSend.append('avatar', formData.avatar);
+    }
+    // Note: We don't send avatarPreview/Base64 anymore, only new files if selected
 
     try {
-      console.log('Sending profile update:', { ...updateData, avatar: base64Avatar ? `Base64 string (${base64Avatar.length} chars)` : 'No change' });
+      console.log('Sending profile update via FormData');
 
       const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData),
+        // Content-Type header must be unset for FormData
+        body: formDataToSend,
       });
 
       const data = await response.json();
@@ -93,7 +72,7 @@ const Settings = () => {
       if (data.status === 'success') {
         alert('Profile updated successfully!'); // Simple feedback for now
         setIsEditing(false);
-        // In a real app, we'd trigger a user refresh here
+        // In a real app, we'd trigger a user refresh here to get the new avatar URL from backend
       } else {
         alert('Failed to update profile: ' + (data.message || 'Unknown error'));
       }
