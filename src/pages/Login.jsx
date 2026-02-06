@@ -103,8 +103,26 @@ const Login = () => {
         // Start session
         try {
           loginSuccess({ email: formData.email, name: 'User' }); // Minimal user object
-          // alert('Login Success! Redirecting to Discover...'); // Visual confirmation
-          navigate('/discover');
+
+          // Pre-fetch search results for Discover page
+          try {
+            const searchResponse = await fetch('https://aiproject123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                intent: 'Search',
+                query: 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali, Ibiza, Rome',
+                email: formData.email,
+                sessionId: activeSessionId
+              })
+            });
+            const searchData = await searchResponse.json();
+            navigate('/discover', { state: { n8nData: searchData } });
+          } catch (searchError) {
+            console.error('Pre-fetch search failed:', searchError);
+            navigate('/discover');
+          }
+
         } catch (err) {
           alert(`Error processing login: ${err.message}`);
           console.error(err);
@@ -135,7 +153,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
       {isLoggingIn && (
-        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-[9999] flex flex-col items-center justify-center rounded-2xl">
           <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
           <h3 className="text-xl font-semibold text-gray-800">Signing you in...</h3>
           <p className="text-gray-500 mt-2">Just a moment.</p>
@@ -209,7 +227,7 @@ const Login = () => {
                 type="submit"
                 className="w-full"
                 size="lg"
-                isLoading={loading}
+                isLoading={isLoggingIn}
               >
                 Sign In
               </Button>

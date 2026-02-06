@@ -125,7 +125,25 @@ const Signup = () => {
           email: formData.email,
           avatar: formData.avatarPreview // Optimistically use preview URL
         });
-        navigate('/discover');
+
+        // Pre-fetch search results for Discover page
+        try {
+          const searchResponse = await fetch('https://aiproject123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              intent: 'Search',
+              query: 'Maldives, Hanoi, Kuala Lumpur, Tokyo, Bali, Ibiza, Rome',
+              email: formData.email,
+              sessionId: activeSessionId
+            })
+          });
+          const searchData = await searchResponse.json();
+          navigate('/discover', { state: { n8nData: searchData } });
+        } catch (searchError) {
+          console.error('Pre-fetch search failed:', searchError);
+          navigate('/discover'); // Fallback to discover loading its own data
+        }
         return;
       } else {
         setErrors({ general: data.message || 'Registration failed. Please try again.' });
