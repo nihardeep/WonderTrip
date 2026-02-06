@@ -16,6 +16,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
 
   const { login, loading, loginSuccess, activeSessionId } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -64,6 +65,8 @@ const Login = () => {
       sessionId: activeSessionId
     };
 
+    setIsLoggingIn(true);
+
     // Send data to n8n webhook
     try {
       const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
@@ -101,7 +104,7 @@ const Login = () => {
         try {
           loginSuccess({ email: formData.email, name: 'User' }); // Minimal user object
           // alert('Login Success! Redirecting to Discover...'); // Visual confirmation
-          navigate('/');
+          navigate('/discover');
         } catch (err) {
           alert(`Error processing login: ${err.message}`);
           console.error(err);
@@ -116,6 +119,8 @@ const Login = () => {
       console.error('Failed to send data to webhook:', error);
       alert(`Connection Error: ${error.message}`);
       setErrors({ general: 'Connection error. Please try again later.' });
+    } finally {
+      setIsLoggingIn(false);
     }
 
     // Backend login is updated to use webhook
@@ -128,7 +133,14 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
+      {isLoggingIn && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
+          <h3 className="text-xl font-semibold text-gray-800">Signing you in...</h3>
+          <p className="text-gray-500 mt-2">Just a moment.</p>
+        </div>
+      )}
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-display font-bold text-gray-900">

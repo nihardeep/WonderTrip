@@ -21,8 +21,9 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { signup, loading, activeSessionId } = useAuth();
+  const { signup, loading, activeSessionId, loginSuccess } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (field, value) => {
@@ -105,6 +106,10 @@ const Signup = () => {
 
     if (!validateForm()) return;
 
+    // Show loading state (controlled by useAuth loading or local state if strictly needed, 
+    // but better to use local specific state for "creating profile" message control)
+    // For now we rely on the button loading state, but we'll add an overlay below.
+
     let base64Avatar = '';
     if (formData.avatar) {
       try {
@@ -128,6 +133,10 @@ const Signup = () => {
 
     // Send data to n8n webhook (Production)
     try {
+      // We'll use a local state wrapper if we want to show a full screen loader, 
+      // but 'loading' from useAuth isn't being used here since we do manual fetch.
+      // Let's rely on the form submission flow.
+
       const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         headers: {
@@ -139,7 +148,13 @@ const Signup = () => {
       const data = await response.json();
 
       if (data.status === 'success') {
-        navigate('/login');
+        // Auto-login
+        loginSuccess({
+          name: formData.name,
+          email: formData.email,
+          avatar: base64Avatar // Optimistically set avatar
+        });
+        navigate('/discover');
         return;
       } else {
         setErrors({ general: data.message || 'Registration failed. Please try again.' });
@@ -151,7 +166,14 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 relative">
+      {isSubmitting && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+          <div className="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin mb-4"></div>
+          <h3 className="text-xl font-semibold text-gray-800">Creating your profile...</h3>
+          <p className="text-gray-500 mt-2">Please wait a moment while we set things up.</p>
+        </div>
+      )}
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-display font-bold text-gray-900">
