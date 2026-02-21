@@ -61,7 +61,7 @@ const Settings = () => {
     try {
       console.log('Sending profile update via FormData');
 
-      const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+      const response = await fetch('https://nds123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         // Content-Type header must be unset for FormData
         body: formDataToSend,

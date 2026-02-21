@@ -128,7 +128,7 @@ const Discover = () => {
       setIsSearching(true);
       console.log('Fetching posts for:', effectiveQuery);
 
-      const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+      const response = await fetch('https://nds123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -269,7 +269,7 @@ const Discover = () => {
       }
 
       // Send to n8n webhook
-      const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+      const response = await fetch('https://nds123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
         method: 'POST',
         body: formDataToSend,
       });

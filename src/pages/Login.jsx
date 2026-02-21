@@ -106,7 +106,7 @@ const Login = () => {
 
           // Pre-fetch search results for Discover page
           try {
-            const searchResponse = await fetch('https://aiproject123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+            const searchResponse = await fetch('https://nds123.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
