@@ -111,14 +111,32 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('https://aiproject123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+      const response = await fetch('https://nds123.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         body: formDataToSend,
       });
 
       const data = await response.json();
 
-      if (data.status === 'success') {
+      // Handle n8n response which might be an array or object
+      const responseItem = Array.isArray(data) ? data[0] : data;
+      // Handle wrapped json or direct object
+      const itemData = responseItem.json || responseItem;
+
+      const status = itemData.status;
+      const message = itemData.message;
+      const success = itemData.success; // Check for boolean success
+      const statusCode = itemData.statusCode; // Check for 200 OK
+
+      console.log('Webhook Data:', data);
+
+      // Check for success (support older string format and new boolean/code format)
+      const isSuccess =
+        (status && status.toString().trim().toLowerCase() === 'success') ||
+        (success === true) ||
+        (statusCode === 200);
+
+      if (isSuccess) {
         // Auto-login
         loginSuccess({
           name: formData.name,
@@ -146,7 +164,7 @@ const Signup = () => {
         }
         return;
       } else {
-        setErrors({ general: data.message || 'Registration failed. Please try again.' });
+        setErrors({ general: message || 'Registration failed. Please try again.' });
       }
     } catch (error) {
       console.error('Failed to send data to webhook:', error);
