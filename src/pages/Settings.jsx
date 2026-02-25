@@ -6,6 +6,23 @@ import Input from '../components/common/Input';
 import Card from '../components/common/Card';
 import CardContent from '../components/common/CardContent';
 
+const tabs = [
+  { id: 'overview', label: 'Profile Overview', icon: User },
+  { id: 'bookings', label: 'My Bookings', icon: Calendar },
+  { id: 'favorites', label: 'Favorites', icon: Heart },
+  { id: 'settings', label: 'Account Settings', icon: SettingsIcon }
+];
+
+const mockBookings = [
+  { id: 1, destination: 'Bali Paradise', location: 'Indonesia', checkIn: '2024-05-10', checkOut: '2024-05-17', totalPrice: 1200, status: 'confirmed' },
+  { id: 2, destination: 'Swiss Alps', location: 'Switzerland', checkIn: '2024-08-15', checkOut: '2024-08-22', totalPrice: 2500, status: 'pending' }
+];
+
+const mockFavorites = [
+  { id: 1, name: 'Santorini Escape', location: 'Greece', rating: 4.8, price: 1500 },
+  { id: 2, name: 'Tokyo Lights', location: 'Japan', rating: 4.9, price: 1800 }
+];
+
 const Settings = () => {
   const { user, logout, activeSessionId } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
