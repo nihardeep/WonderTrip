@@ -111,7 +111,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('https://wondertrip1234.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+      const response = await fetch('https://nds12345.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         body: formDataToSend,
       });
