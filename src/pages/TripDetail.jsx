@@ -338,7 +338,7 @@ const TripDetail = () => {
 
                     {/* Action Buttons */}
                     <div className="flex flex-wrap gap-3 mb-8">
-                        <Button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white">
+                        <Button className="flex-1 bg-purple-600 hover:bg-purple-700 text-white" onClick={() => navigate('/create-trip')}>
                             Create Trip From This Post
                         </Button>
                         <Button variant="outline" size="lg">

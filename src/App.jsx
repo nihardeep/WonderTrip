@@ -35,6 +35,7 @@ import Discover from './pages/Discover';
 import TripDetail from './pages/TripDetail';
 
 import NotFound from './pages/NotFound';
+import CreateTrip from './pages/CreateTrip';
 
 
 
@@ -77,6 +78,7 @@ function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/create-trip" element={<CreateTrip />} />
 
               {/* Private Routes */}
               <Route

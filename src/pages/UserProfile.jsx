@@ -262,7 +262,7 @@ const UserProfile = () => {
                                                             <Heart className="w-4 h-4 mr-2" />
                                                             View Trip
                                                         </Button>
-                                                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                                                        <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white" onClick={() => navigate('/create-trip')}>
                                                             <Share2 className="w-4 h-4 mr-2" />
                                                             Create Trip From This Post
                                                         </Button>

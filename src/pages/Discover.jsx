@@ -824,7 +824,7 @@ const Discover = () => {
                         >
                           View Trip
                         </Button>
-                        <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white">
+                        <Button size="sm" className="bg-primary-600 hover:bg-primary-700 text-white" onClick={() => navigate('/create-trip')}>
                           Create Trip From This Post
                         </Button>
                       </div>
@@ -1143,7 +1143,8 @@ const Discover = () => {
                     Cancel
                   </Button>
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={() => { setIsModalOpen(false); navigate('/create-trip'); }}
                     className="flex-1 bg-primary-600 hover:bg-primary-700 text-white"
                   >
                     Create Trip
