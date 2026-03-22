@@ -77,7 +77,7 @@ const TripDetail = () => {
             });
 
             // The actual fetch request
-            const fetchPromise = fetch('https://wondertrip1234.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+            const fetchPromise = fetch('https://nds12345.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
