@@ -63,7 +63,7 @@ const DestinationSection = ({ dest }) => {
           <p className="text-xl text-gray-600">{dest.tagline}</p>
         </div>
         <Link
-          to={`/discover?search=${encodeURIComponent(dest.name)}`}
+          to={`/destinations/${dest.id}`}
           className="mt-4 md:mt-0 inline-flex items-center font-bold text-primary-600 hover:text-primary-700 transition-colors group text-lg"
         >
           Explore {dest.name}

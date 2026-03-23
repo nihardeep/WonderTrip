@@ -1,340 +1,246 @@
-import { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { MapPin, Star, Clock, Users, Calendar, Heart, Share2, ArrowLeft } from 'lucide-react';
-import { useApi } from '../hooks/useApi';
-import { useBooking } from '../context/BookingContext';
-import { useAuth } from '../hooks/useAuth';
-import Button from '../components/common/Button';
-import Card from '../components/common/Card';
-import CardContent from '../components/common/CardContent';
+import { Star, Heart, ChevronRight, ChevronLeft, ArrowLeft } from 'lucide-react';
 
-const DestinationDetail = () => {
-  const { id } = useParams();
-  const [destination, setDestinationData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(0);
-  const { makeRequest } = useApi();
-  const { setDestination, setStatus } = useBooking();
-  const { isAuthenticated } = useAuth();
+const HUB_DATA = {
+  ibiza: {
+    name: 'Ibiza',
+    country: 'Spain',
+    heroImage: 'https://images.unsplash.com/photo-1562920618-fa119ce0159b?q=80&w=1600',
+    tagline: 'The ultimate Mediterranean escape. Famous for historic old towns, quiet villages, yoga retreats, and pristine beaches.',
+    categories: ['Boat Tours', 'Nightlife', 'Historic Walk', 'Beach Clubs', 'Yoga Retreats'],
+    activities: [
+      { id: 1, title: 'Ibiza Sunset Cruise Tour', rating: 4.8, reviews: '3.8K+', oldPrice: '€ 60.00', price: '€ 45.00', image: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=600', badge: 'Combo 14% off' },
+      { id: 2, title: 'Dalt Vila Historical Experience', rating: 5.0, reviews: '33', oldPrice: '€ 15.00', price: '€ 12.50', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600', badge: '' },
+      { id: 3, title: 'Formentera Day Trip Ticket', rating: 4.5, reviews: '1.8K+', oldPrice: '€ 40.00', price: '€ 35.00', image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=600', badge: '' },
+      { id: 4, title: 'Kayak the bay with snorkeling', rating: 4.6, reviews: '1.9K+', oldPrice: '€ 35.00', price: '€ 25.00', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600', badge: 'Spring deal' }
+    ],
+    hotels: [
+      { id: 'ib1', name: 'The Ibiza Bay Resort', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=600', rating: 4.8, reviews: 124, price: '€350' },
+      { id: 'ib2', name: 'Sol House Ibiza', image: 'https://images.unsplash.com/photo-1522792040997-7e7e60086c20?q=80&w=600', rating: 4.6, reviews: 89, price: '€280' },
+      { id: 'ib3', name: 'Destino Pacha', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600', rating: 4.9, reviews: 210, price: '€450' },
+      { id: 'ib4', name: 'Hard Rock Hotel', image: 'https://images.unsplash.com/photo-1551882547-ff40c0d12c5b?q=80&w=600', rating: 4.5, reviews: 340, price: '€310' },
+      { id: 'ib5', name: 'Ushuaïa Ibiza Beach Hotel', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600', rating: 4.7, reviews: 520, price: '€400' }
+    ]
+  },
+  tokyo: {
+    name: 'Tokyo',
+    country: 'Japan',
+    heroImage: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1600',
+    tagline: 'Dive into the bustling metropolis of Tokyo with its unique blend of tradition and modernity.',
+    categories: ['Mt Fuji Tours', 'Theme Parks', 'Food & Dining', 'Rail Passes', 'Cultural Walk'],
+    activities: [
+      { id: 1, title: 'Mt Fuji & Hakone Day Tour', rating: 4.8, reviews: '15K+', oldPrice: '¥ 12,000', price: '¥ 10,500', image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=600', badge: 'Best Seller' },
+      { id: 2, title: 'Tokyo Disneyland Ticket', rating: 4.9, reviews: '40K+', oldPrice: '', price: '¥ 8,400', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=600', badge: 'Direct Entry' },
+      { id: 3, title: 'Shibuya Food Tour', rating: 4.7, reviews: '2.1K+', oldPrice: '¥ 15,000', price: '¥ 13,000', image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?q=80&w=600', badge: 'Foodie Pick' },
+      { id: 4, title: 'TeamLab Planets TOKYO', rating: 4.9, reviews: '22K+', oldPrice: '', price: '¥ 3,800', image: 'https://images.unsplash.com/photo-1551882547-ff40c0d12c5b?q=80&w=600', badge: 'Must Do' }
+    ],
+    hotels: [
+      { id: 'tk1', name: 'Aman Tokyo', image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=600', rating: 4.9, reviews: 412, price: '¥120,000' },
+      { id: 'tk2', name: 'Park Hyatt Tokyo', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=600', rating: 4.8, reviews: 320, price: '¥85,000' },
+      { id: 'tk3', name: 'Conrad Tokyo', image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?q=80&w=600', rating: 4.7, reviews: 215, price: '¥70,000' },
+      { id: 'tk4', name: 'The Ritz-Carlton', image: 'https://images.unsplash.com/photo-1542314831-c6a4d14cd40f?q=80&w=600', rating: 4.8, reviews: 180, price: '¥95,000' },
+      { id: 'tk5', name: 'Shinjuku Prince Hotel', image: 'https://images.unsplash.com/photo-1493997181344-712f2f19d87e?q=80&w=600', rating: 4.4, reviews: 650, price: '¥25,000' }
+    ]
+  },
+  maldives: {
+    name: 'Maldives',
+    country: 'Maldives',
+    heroImage: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1600',
+    tagline: 'Crystal clear waters, overwater bungalows, and pristine beaches make this a dream destination.',
+    categories: ['Seaplane Transfers', 'Sunset Cruises', 'Scuba Diving', 'Resort Passes', 'Spa Packages'],
+    activities: [
+      { id: 1, title: 'Malé City Walking Tour', rating: 4.5, reviews: '340', oldPrice: '$ 45.00', price: '$ 30.00', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600', badge: '' },
+      { id: 2, title: 'Whale Shark Snorkeling', rating: 5.0, reviews: '1.2K+', oldPrice: '$ 150.00', price: '$ 120.00', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600', badge: 'Popular' },
+      { id: 3, title: 'Luxury Sunset Dolphin Cruise', rating: 4.8, reviews: '890', oldPrice: '$ 200.00', price: '$ 175.00', image: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=600', badge: 'Romantic' },
+      { id: 4, title: 'Introductory Scuba Dive', rating: 4.9, reviews: '2.4K+', oldPrice: '$ 120.00', price: '$ 99.00', image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=600', badge: 'Beginner Friendly' }
+    ],
+    hotels: [
+      { id: 'm1', name: 'Soneva Jani', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600', rating: 4.9, reviews: 110, price: '$2,500' },
+      { id: 'm2', name: 'Gili Lankanfushi', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600', rating: 4.8, reviews: 290, price: '$1,800' },
+      { id: 'm3', name: 'Conrad Maldives', image: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=600', rating: 4.7, reviews: 450, price: '$1,200' },
+      { id: 'm4', name: 'Six Senses Laamu', image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=600', rating: 4.8, reviews: 140, price: '$1,500' },
+      { id: 'm5', name: 'Baros Maldives', image: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?q=80&w=600', rating: 4.9, reviews: 520, price: '$900' }
+    ]
+  }
+};
 
-  useEffect(() => {
-    const fetchDestination = async () => {
-      try {
-        setLoading(true);
-        // Mock data for now - replace with actual API call
-        const mockData = {
-          id: parseInt(id),
-          name: 'Bali Paradise',
-          location: 'Indonesia',
-          rating: 4.8,
-          reviews: 1250,
-          price: 1200,
-          duration: '7 days',
-          category: 'Beach',
-          description: 'Tropical beaches, ancient temples, and vibrant culture await in this Indonesian paradise. Experience the perfect blend of relaxation and adventure with stunning sunsets, lush rice terraces, and world-class surfing spots.',
-          images: [
-            '/images/destinations/bali-1.jpg',
-            '/images/destinations/bali-2.jpg',
-            '/images/destinations/bali-3.jpg',
-            '/images/destinations/bali-4.jpg'
-          ],
-          highlights: [
-            'Stunning beaches with crystal-clear waters',
-            'Ancient temples and cultural heritage sites',
-            'World-class surfing and water sports',
-            'Lush rice terraces and scenic landscapes',
-            'Vibrant nightlife and local cuisine'
-          ],
-          itinerary: [
-            {
-              day: 1,
-              title: 'Arrival in Bali',
-              description: 'Welcome to Bali! Transfer to your resort and relax by the beach.'
-            },
-            {
-              day: 2,
-              title: 'Ubud Exploration',
-              description: 'Visit the Monkey Forest and explore the cultural heart of Bali.'
-            },
-            {
-              day: 3,
-              title: 'Beach Day',
-              description: 'Relax on pristine beaches and enjoy water activities.'
-            },
-            {
-              day: 4,
-              title: 'Temple Tour',
-              description: 'Visit ancient temples and learn about Balinese culture.'
-            },
-            {
-              day: 5,
-              title: 'Adventure Activities',
-              description: 'Hiking, surfing, or ATV tours through beautiful landscapes.'
-            },
-            {
-              day: 6,
-              title: 'Free Day',
-              description: 'Explore at your own pace or enjoy spa treatments.'
-            },
-            {
-              day: 7,
-              title: 'Departure',
-              description: 'Transfer to airport for your journey home.'
-            }
-          ],
-          included: [
-            'Round-trip flights',
-            'Luxury accommodation',
-            'Daily breakfast',
-            'Guided tours',
-            'Airport transfers',
-            '24/7 support'
-          ],
-          notIncluded: [
-            'International flights',
-            'Travel insurance',
-            'Personal expenses',
-            'Optional activities',
-            'Visas'
-          ]
-        };
+const ActivityCarousel = ({ activities, destName }) => {
+  const scrollRef = useRef(null);
 
-        // Uncomment when API is ready:
-        // const data = await makeRequest(`/destinations/${id}`);
-        setDestination(mockData);
-      } catch (err) {
-        setError('Failed to load destination details');
-        console.error('Failed to fetch destination:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDestination();
-  }, [id, makeRequest, setDestination]);
-
-  const handleBookNow = () => {
-    if (destination) {
-      setDestination(destination);
-      setStatus('in_progress');
-      // Navigate to booking page would happen here
+  const scroll = (amount) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
-
-  if (error || !destination) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Destination Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || 'The destination you\'re looking for doesn\'t exist.'}</p>
-          <Link to="/destinations">
-            <Button>Browse All Destinations</Button>
-          </Link>
+  return (
+    <div className="mb-16">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-display font-bold text-gray-900">Top Things to Do in {destName}</h2>
+        <div className="flex gap-2">
+          <button onClick={() => scroll(-300)} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <button onClick={() => scroll(300)} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
         </div>
       </div>
-    );
-  }
+
+      <div
+        ref={scrollRef}
+        className="flex overflow-x-auto gap-5 pb-4 snap-x hide-scrollbar"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {activities.map(act => (
+          <Link to={`/discover?search=${encodeURIComponent(destName)}`} key={act.id} className="snap-start flex-shrink-0 w-64 bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col group cursor-pointer shadow-sm hover:shadow-lg transition-shadow">
+            <div className="h-40 relative overflow-hidden bg-gray-100">
+              <img src={act.image} alt={act.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+              {act.badge && (
+                <div className="absolute top-3 left-3 bg-red-500 text-white text-[11px] font-bold px-2 py-1 rounded">
+                  {act.badge}
+                </div>
+              )}
+            </div>
+            <div className="p-4 flex flex-col flex-grow">
+              <h3 className="font-bold text-gray-900 text-base leading-tight mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">{act.title}</h3>
+              <div className="flex items-center text-sm mb-3">
+                <Star className="w-4 h-4 text-orange-400 fill-orange-400 mr-1" />
+                <span className="font-bold text-gray-900 mr-1">{act.rating}</span>
+                <span className="text-gray-500">({act.reviews})</span>
+              </div>
+              <div className="mt-auto">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-lg font-bold text-gray-900">{act.price}</span>
+                  {act.oldPrice && <span className="text-sm font-medium text-gray-400 line-through">{act.oldPrice}</span>}
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const HotelCarousel = ({ hotels, destName }) => {
+  const scrollRef = useRef(null);
+
+  const scroll = (amount) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <div className="section-padding">
-      <div className="container-custom">
-        {/* Back Button */}
-        <Link to="/destinations" className="inline-flex items-center text-primary-600 hover:text-primary-700 mb-6">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Destinations
-        </Link>
+    <div className="mb-16 mt-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-display font-bold text-gray-900">Best Stays in {destName}</h2>
+        <div className="flex gap-2">
+          <button onClick={() => scroll(-300)} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+            <ChevronLeft className="w-5 h-5 text-gray-600" />
+          </button>
+          <button onClick={() => scroll(300)} className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm">
+            <ChevronRight className="w-5 h-5 text-gray-600" />
+          </button>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Image Gallery */}
-            <div className="mb-8">
-              <div className="relative h-96 rounded-lg overflow-hidden mb-4">
-                <div className="w-full h-full bg-gradient-to-br from-primary-200 to-primary-300 flex items-center justify-center">
-                  <MapPin className="w-16 h-16 text-primary-600" />
-                </div>
-              </div>
-
-              {/* Thumbnail Gallery */}
-              <div className="flex space-x-2 overflow-x-auto">
-                {destination.images?.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${
-                      selectedImage === index ? 'border-primary-500' : 'border-gray-200'
-                    }`}
-                  >
-                    <div className="w-full h-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-primary-500" />
-                    </div>
-                  </button>
-                ))}
+      <div
+        ref={scrollRef}
+        className="flex overflow-x-auto gap-6 pb-4 snap-x hide-scrollbar"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {hotels.map(hotel => (
+          <Link to={`/discover?search=${encodeURIComponent(destName)}`} key={hotel.id} className="snap-start flex-shrink-0 w-[280px] group cursor-pointer block">
+            <div className="relative h-[200px] rounded-2xl overflow-hidden mb-3 shadow-sm group-hover:shadow-md transition-shadow">
+              <img
+                src={hotel.image}
+                alt={hotel.name}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center hover:text-red-500 text-gray-400 transition-colors">
+                <Heart className="w-4 h-4" />
               </div>
             </div>
-
-            {/* Destination Info */}
-            <div className="mb-8">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h1 className="text-3xl font-display font-bold text-gray-900 mb-2">
-                    {destination.name}
-                  </h1>
-                  <div className="flex items-center text-gray-600 mb-3">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {destination.location}
-                  </div>
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                      <span className="font-medium">{destination.rating}</span>
-                      <span className="text-gray-500 ml-1">({destination.reviews} reviews)</span>
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <Clock className="w-4 h-4 mr-1" />
-                      {destination.duration}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  <button className="p-2 rounded-lg border border-gray-200 hover:border-gray-300">
-                    <Heart className="w-5 h-5 text-gray-400" />
-                  </button>
-                  <button className="p-2 rounded-lg border border-gray-200 hover:border-gray-300">
-                    <Share2 className="w-5 h-5 text-gray-400" />
-                  </button>
+            <div className="px-1">
+              <div className="flex justify-between items-start mb-1">
+                <h3 className="font-bold text-gray-900 text-lg truncate pr-2 group-hover:text-primary-600 transition-colors">{hotel.name}</h3>
+                <div className="flex items-center text-sm font-semibold text-gray-900 bg-gray-100 px-1.5 py-0.5 rounded">
+                  <Star className="w-3.5 h-3.5 mr-1 fill-yellow-400 text-yellow-400" />
+                  {hotel.rating}
                 </div>
               </div>
-
-              <p className="text-gray-700 text-lg leading-relaxed mb-6">
-                {destination.description}
-              </p>
-
-              {/* Highlights */}
-              <div className="mb-6">
-                <h3 className="text-xl font-semibold mb-4">Highlights</h3>
-                <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {destination.highlights?.map((highlight, index) => (
-                    <li key={index} className="flex items-center">
-                      <div className="w-2 h-2 bg-primary-500 rounded-full mr-3"></div>
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <div className="text-gray-500 text-sm mb-2">{hotel.reviews} reviews</div>
+              <div className="font-bold text-gray-900 text-lg">{hotel.price} <span className="text-sm font-normal text-gray-500 mr-1">night</span></div>
             </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
 
-            {/* Itinerary */}
-            <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4">Itinerary</h3>
-              <div className="space-y-4">
-                {destination.itinerary?.map((day) => (
-                  <Card key={day.day}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start">
-                        <div className="flex-shrink-0 w-8 h-8 bg-primary-600 text-white rounded-full flex items-center justify-center text-sm font-semibold mr-4">
-                          {day.day}
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 mb-1">{day.title}</h4>
-                          <p className="text-gray-600">{day.description}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+const DestinationDetail = () => {
+  const { id } = useParams();
+  const destId = id?.toLowerCase() || 'ibiza';
+  const dest = HUB_DATA[destId] || HUB_DATA['ibiza'];
+
+  return (
+    <div className="bg-white min-h-screen pb-20">
+
+      {/* Hero Header */}
+      <div className="relative w-full h-[450px] md:h-[550px] bg-gray-900 overflow-hidden">
+        <img
+          src={dest.heroImage}
+          alt={dest.name}
+          className="w-full h-full object-cover opacity-90"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+
+        {/* Top Navbar Back Action */}
+        <div className="absolute top-6 left-6 z-20">
+          <Link to="/destinations" className="flex items-center text-white hover:text-primary-300 font-bold bg-black/30 hover:bg-black/50 backdrop-blur-md px-5 py-2.5 rounded-full transition-all border border-white/amo">
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            All Destinations
+          </Link>
+        </div>
+
+        {/* Hero Content */}
+        <div className="absolute bottom-0 left-0 w-full p-6 md:p-12 pb-16">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col">
+              <div className="text-white/90 font-bold text-sm md:text-base uppercase tracking-widest mb-3 bg-primary-600/90 inline-block px-3 py-1 rounded w-fit">{dest.country}</div>
+              <h1 className="text-5xl md:text-7xl font-display font-black text-white mb-4 drop-shadow-xl tracking-tight">{dest.name}</h1>
+              <p className="text-xl md:text-2xl text-white/90 max-w-2xl text-shadow leading-relaxed font-medium">{dest.tagline}</p>
             </div>
-
-            {/* What's Included */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-              <div>
-                <h3 className="text-xl font-semibold mb-4">What's Included</h3>
-                <ul className="space-y-2">
-                  {destination.included?.map((item, index) => (
-                    <li key={index} className="flex items-center text-green-700">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-3"></div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Not Included</h3>
-                <ul className="space-y-2">
-                  {destination.notIncluded?.map((item, index) => (
-                    <li key={index} className="flex items-center text-gray-600">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-3"></div>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Booking Sidebar */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <div className="text-3xl font-display font-bold text-primary-600 mb-2">
-                    ${destination.price}
-                  </div>
-                  <div className="text-gray-600">per person</div>
-                </div>
-
-                {isAuthenticated ? (
-                  <Button onClick={handleBookNow} className="w-full mb-4">
-                    Book Now
-                  </Button>
-                ) : (
-                  <div className="space-y-3">
-                    <Link to="/login" className="block">
-                      <Button variant="outline" className="w-full">
-                        Login to Book
-                      </Button>
-                    </Link>
-                    <Link to="/signup" className="block">
-                      <Button variant="secondary" className="w-full">
-                        Create Account
-                      </Button>
-                    </Link>
-                  </div>
-                )}
-
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                    <span>Duration</span>
-                    <span>{destination.duration}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-                    <span>Rating</span>
-                    <span className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
-                      {destination.rating}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span>Reviews</span>
-                    <span>{destination.reviews}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
+      </div>
+
+      {/* Main Content Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-30">
+
+        {/* Category Pills (Filters) */}
+        <div className="flex overflow-x-auto gap-3 pb-6 mb-10 hide-scrollbar whitespace-nowrap bg-white py-4 px-2 rounded-2xl shadow-sm border border-gray-100" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {dest.categories.map(cat => (
+            <button key={cat} className="px-6 py-2.5 rounded-full border border-gray-200 text-gray-700 font-bold hover:border-black hover:text-black hover:bg-gray-50 transition-all shadow-sm bg-white">
+              {cat}
+            </button>
+          ))}
+        </div>
+
+        {/* Top Things to Do Carousel */}
+        <ActivityCarousel activities={dest.activities} destName={dest.name} />
+
+        {/* Separator */}
+        <div className="w-full h-px bg-gray-200 my-8"></div>
+
+        {/* Best Stays Carousel */}
+        <HotelCarousel hotels={dest.hotels} destName={dest.name} />
+
       </div>
     </div>
   );
