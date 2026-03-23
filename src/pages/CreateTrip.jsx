@@ -87,6 +87,14 @@ const MOCK_TRANSIT = [
     { title: 'Local Bus L3', price: 3.50, duration: '45 min • Frequent', type: 'bus' }
 ];
 
+const MOCK_CAROUSEL_ACTIVITIES = [
+    { id: 101, title: 'Kayak the bay with snorkeling', rating: 4.6, count: 1956, oldPrice: '€ 35.00', price: '€ 25.00', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Spring deal', color: 'bg-orange-500' }, { text: 'Sale 15% off', color: 'text-orange-500 bg-orange-50 border-orange-200' }] },
+    { id: 102, title: 'Old Town Walking Tour', rating: 4.8, count: 16000, oldPrice: '€ 20.00', price: '€ 15.00', image: 'https://images.unsplash.com/photo-1554523363-2383c31db1cc?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Spring deal', color: 'bg-orange-500' }, { text: 'Sale 25% off', color: 'text-orange-500 bg-orange-50 border-orange-200' }] },
+    { id: 103, title: 'Ibiza Sunset Cruise Tour', rating: 4.4, count: 3831, oldPrice: '€ 60.00', price: '€ 45.00', image: 'https://images.unsplash.com/photo-1606820542152-78d1283d6a36?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Combo 14% off', color: 'text-red-500 bg-red-50 border-red-200' }] },
+    { id: 104, title: 'Dalt Vila Historical Experience', rating: 5.0, count: 33, oldPrice: '€ 15.00', price: '€ 12.50', image: 'https://images.unsplash.com/photo-1563725586617-64b18c5e0094?q=80&w=800&auto=format&fit=crop', tags: [] },
+    { id: 105, title: 'Formentera Day Trip Ticket', rating: 4.5, count: 1768, oldPrice: '€ 40.00', price: '€ 35.00', image: 'https://images.unsplash.com/photo-1574676527582-84950da7fc80?q=80&w=800&auto=format&fit=crop', tags: [] }
+];
+
 const FILTER_POPULAR = [
     'Internet access', 'TV', 'Ironing facilities', 'Heating', 'Bathtub', 'Guest rating: 9+ Exceptional', 'Swimming pool', 'Breakfast included'
 ];
@@ -263,137 +271,200 @@ const CreateTrip = () => {
 
                     {/* Hotel List */}
                     <div className="space-y-4">
-                        {MOCK_HOTELS.map((hotel) => (
-                            <div key={hotel.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row">
+                        {MOCK_HOTELS.map((hotel, index) => (
+                            <div key={hotel.id}>
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row mb-4">
 
-                                {/* Image Section */}
-                                <div className="w-full sm:w-72 relative flex-shrink-0 min-h-[240px]">
-                                    <img src={hotel.image} alt={hotel.name} className="absolute inset-0 w-full h-full object-cover" />
+                                    {/* Image Section */}
+                                    <div className="w-full sm:w-72 relative flex-shrink-0 min-h-[240px]">
+                                        <img src={hotel.image} alt={hotel.name} className="absolute inset-0 w-full h-full object-cover" />
 
-                                    {/* Top banner / badges on image */}
-                                    {hotel.tags[0] === 'BRAND EXCLUSIVES' ? (
-                                        <div className="absolute top-0 left-0 right-0 bg-transparent">
-                                            {/* We just rely on a tag above the image if needed, but in mockup Brand Exclusive is a bar *above* exactly like booking/agoda. We'll handle it inside the border padding below. For now, tag on image left: */}
-                                            {/* Actually the mockup shows a dark purple bar top of the card if Brand Exclusive. We can add it outside the grid or as a top bar of the entire card! */}
+                                        {/* Top banner / badges on image */}
+                                        {hotel.tags[0] === 'BRAND EXCLUSIVES' ? (
+                                            <div className="absolute top-0 left-0 right-0 bg-transparent">
+                                                {/* We just rely on a tag above the image if needed, but in mockup Brand Exclusive is a bar *above* exactly like booking/agoda. We'll handle it inside the border padding below. For now, tag on image left: */}
+                                                {/* Actually the mockup shows a dark purple bar top of the card if Brand Exclusive. We can add it outside the grid or as a top bar of the entire card! */}
+                                            </div>
+                                        ) : null}
+
+                                        {/* Typical Image Badges */}
+                                        <div className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center cursor-pointer shadow-sm hover:text-red-500 text-gray-400 transition-colors">
+                                            <Heart className="w-5 h-5" />
                                         </div>
-                                    ) : null}
-
-                                    {/* Typical Image Badges */}
-                                    <div className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 backdrop-blur flex items-center justify-center cursor-pointer shadow-sm hover:text-red-500 text-gray-400 transition-colors">
-                                        <Heart className="w-5 h-5" />
-                                    </div>
-                                    <div className="absolute top-1/2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center cursor-pointer opacity-80 hover:opacity-100">
-                                        <ChevronRight className="w-5 h-5 text-gray-600" />
-                                    </div>
-                                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded">
-                                        1/10
-                                    </div>
-
-                                    {/* Blue "Newly Built" Tag on bottom left or top left (like Agoda mock) */}
-                                    {hotel.tags.includes('Newly built in 2025') && (
-                                        <div className="absolute top-0 left-0 bg-blue-600 text-white text-xs font-semibold px-3 py-1 pb-1">
-                                            Newly built in 2025
+                                        <div className="absolute top-1/2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur shadow-sm flex items-center justify-center cursor-pointer opacity-80 hover:opacity-100">
+                                            <ChevronRight className="w-5 h-5 text-gray-600" />
                                         </div>
-                                    )}
+                                        <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded">
+                                            1/10
+                                        </div>
+
+                                        {/* Blue "Newly Built" Tag on bottom left or top left (like Agoda mock) */}
+                                        {hotel.tags.includes('Newly built in 2025') && (
+                                            <div className="absolute top-0 left-0 bg-blue-600 text-white text-xs font-semibold px-3 py-1 pb-1">
+                                                Newly built in 2025
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Middle Section (Info) & Right Section (Pricing) */}
+                                    <div className="flex-1 flex flex-col sm:flex-row justify-between relative">
+
+                                        {/* Top Brand Banner if any */}
+                                        {hotel.tags.includes('BRAND EXCLUSIVES') && (
+                                            <div className="absolute top-0 left-0 right-0 bg-[#59225c] text-white text-xs font-semibold px-4 py-1.5 flex items-center gap-2">
+                                                <Zap className="w-3.5 h-3.5 fill-current" /> BRAND EXCLUSIVES
+                                                <span className="font-normal opacity-80 text-[10px] ml-1">Limited time offer</span>
+                                            </div>
+                                        )}
+
+                                        {/* Info Grid */}
+                                        <div className={`flex-1 p-5 ${hotel.tags.includes('BRAND EXCLUSIVES') ? 'pt-10' : ''}`}>
+                                            <h2 className="text-xl font-bold text-gray-900 leading-tight mb-1 pr-4">{hotel.name}</h2>
+
+                                            <div className="flex items-center text-orange-400 mb-2 gap-0.5">
+                                                {[...Array(hotel.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
+                                            </div>
+
+                                            <div className="flex items-start text-sm text-blue-600 font-semibold mb-3 cursor-pointer hover:underline">
+                                                <MapPin className="w-4 h-4 mt-0.5 mr-1 flex-shrink-0" />
+                                                <span>
+                                                    {hotel.location.split('-')[0]}
+                                                    <span className="text-gray-500 font-normal"> - {hotel.location.split('-')[1]}</span>
+                                                </span>
+                                            </div>
+
+                                            {/* Badges */}
+                                            <div className="flex flex-wrap gap-2 mb-4">
+                                                {hotel.badges.map(b => (
+                                                    <span key={b} className="text-xs font-semibold px-2 py-0.5 border border-gray-300 text-gray-600 rounded">
+                                                        {b === 'Boosted' && <span className="text-blue-500 font-bold mr-1">Boosted</span>}
+                                                        {b === 'WonderTrip Preferred' && <span className="text-purple-600 mr-1">★ Preferred</span>}
+                                                        {b !== 'Boosted' && b !== 'WonderTrip Preferred' && <span className="text-gray-600">{b}</span>}
+                                                    </span>
+                                                ))}
+                                                {hotel.badges.length === 0 && <span className="text-xs font-semibold px-2 py-0.5 bg-red-50 text-red-600 rounded">Booked 27 times today</span>}
+                                            </div>
+
+                                            <div className="flex items-start text-xs text-gray-600">
+                                                <span className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center mr-2 text-[10px] text-gray-500 mt-0.5">❝</span>
+                                                <p className="italic text-gray-500">{hotel.snippet}</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Pricing & Rating Right Sidebar */}
+                                        <div className={`sm:w-56 p-5 border-t sm:border-t-0 sm:border-l border-gray-100 flex flex-col justify-between ${hotel.tags.includes('BRAND EXCLUSIVES') ? 'pt-10' : ''}`}>
+
+                                            {/* Top: Score */}
+                                            <div className="text-right mb-6">
+                                                <div className="flex items-center justify-end gap-2 mb-0.5">
+                                                    <div className="text-right">
+                                                        <div className="font-bold text-blue-700">{hotel.scoreText}</div>
+                                                        <div className="text-xs text-gray-500">{hotel.reviews}</div>
+                                                    </div>
+                                                    <div className="w-9 h-9 bg-blue-700 text-white rounded-t-lg rounded-br-lg rounded-bl flex items-center justify-center font-bold text-lg">
+                                                        {hotel.score}
+                                                    </div>
+                                                </div>
+                                                <div className="text-xs font-bold text-gray-700 bg-gray-100 inline-block px-2 py-0.5 rounded mt-1">
+                                                    {hotel.locationScore} Location score
+                                                </div>
+                                            </div>
+
+                                            {/* Bottom: Price */}
+                                            <div className="text-right mt-auto">
+                                                {hotel.priceLabel && (
+                                                    <div className={`text-xs font-bold border inline-block px-2 py-0.5 rounded mb-2 ${hotel.priceLabelColor ? hotel.priceLabelColor + ' border-transparent' : 'text-red-500 border-red-200 bg-red-50'}`}>
+                                                        {hotel.priceLabel.includes('Price') ? <ChevronRight className="w-3 h-3 inline transform -rotate-45" /> : null}
+                                                        {hotel.priceLabel}
+                                                    </div>
+                                                )}
+
+                                                <div className="text-[10px] text-gray-500 mb-0.5">Per night before taxes and fees</div>
+
+                                                <div className="flex items-baseline justify-end gap-2">
+                                                    <span className="text-red-500 text-lg font-bold line-through opacity-80">
+                                                        {hotel.oldPrice}
+                                                    </span>
+                                                    <span className="text-2xl font-bold text-red-600">
+                                                        {hotel.price}
+                                                    </span>
+                                                </div>
+
+                                                {hotel.priceLabelColor?.includes('bg-red') ? (
+                                                    <Button className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold tracking-wide py-2.5 rounded shadow-sm text-sm">
+                                                        Select Room
+                                                    </Button>
+                                                ) : (
+                                                    <div className="bg-gray-100 border border-gray-200 mt-2 p-2 rounded text-xs text-gray-600 font-medium">
+                                                        <span className="font-bold text-gray-900 text-sm">{hotel.price.replace('€', '€ ')}</span> When you <a href="/login" className="text-blue-600 hover:underline">sign in</a>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                    </div>
                                 </div>
 
-                                {/* Middle Section (Info) & Right Section (Pricing) */}
-                                <div className="flex-1 flex flex-col sm:flex-row justify-between relative">
+                                {/* Activity Carousel Inject after the second hotel (index 1) */}
+                                {index === 1 && (
+                                    <div className="py-6 mt-6 mb-2 border-t border-b border-gray-200">
+                                        <h3 className="text-xl font-bold text-gray-900 mb-4 px-1">Top things to do in Ibiza</h3>
+                                        <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                            {/* Intro Card */}
+                                            <div className="snap-start flex-shrink-0 w-48 h-[280px] rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm">
+                                                <img src="https://images.unsplash.com/photo-1533475960416-560fe88db907?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Ibiza" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                                <div className="absolute bottom-4 left-4 text-white">
+                                                    <div className="font-bold text-2xl mb-1">Ibiza</div>
+                                                    <div className="text-sm font-medium flex items-center hover:underline">Explore <ChevronRight className="w-4 h-4 ml-1" /></div>
+                                                </div>
+                                            </div>
 
-                                    {/* Top Brand Banner if any */}
-                                    {hotel.tags.includes('BRAND EXCLUSIVES') && (
-                                        <div className="absolute top-0 left-0 right-0 bg-[#59225c] text-white text-xs font-semibold px-4 py-1.5 flex items-center gap-2">
-                                            <Zap className="w-3.5 h-3.5 fill-current" /> BRAND EXCLUSIVES
-                                            <span className="font-normal opacity-80 text-[10px] ml-1">Limited time offer</span>
-                                        </div>
-                                    )}
-
-                                    {/* Info Grid */}
-                                    <div className={`flex-1 p-5 ${hotel.tags.includes('BRAND EXCLUSIVES') ? 'pt-10' : ''}`}>
-                                        <h2 className="text-xl font-bold text-gray-900 leading-tight mb-1 pr-4">{hotel.name}</h2>
-
-                                        <div className="flex items-center text-orange-400 mb-2 gap-0.5">
-                                            {[...Array(hotel.rating)].map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                                        </div>
-
-                                        <div className="flex items-start text-sm text-blue-600 font-semibold mb-3 cursor-pointer hover:underline">
-                                            <MapPin className="w-4 h-4 mt-0.5 mr-1 flex-shrink-0" />
-                                            <span>
-                                                {hotel.location.split('-')[0]}
-                                                <span className="text-gray-500 font-normal"> - {hotel.location.split('-')[1]}</span>
-                                            </span>
-                                        </div>
-
-                                        {/* Badges */}
-                                        <div className="flex flex-wrap gap-2 mb-4">
-                                            {hotel.badges.map(b => (
-                                                <span key={b} className="text-xs font-semibold px-2 py-0.5 border border-gray-300 text-gray-600 rounded">
-                                                    {b === 'Boosted' && <span className="text-blue-500 font-bold mr-1">Boosted</span>}
-                                                    {b === 'WonderTrip Preferred' && <span className="text-purple-600 mr-1">★ Preferred</span>}
-                                                    {b !== 'Boosted' && b !== 'WonderTrip Preferred' && <span className="text-gray-600">{b}</span>}
-                                                </span>
+                                            {/* Activity Cards */}
+                                            {MOCK_CAROUSEL_ACTIVITIES.map(act => (
+                                                <div key={act.id} className="snap-start flex-shrink-0 w-64 h-[280px] bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow relative">
+                                                    {act.tags.find(t => t.color.includes('bg-orange-500')) && (
+                                                        <div className="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">
+                                                            {act.tags.find(t => t.color.includes('bg-orange-500')).text}
+                                                        </div>
+                                                    )}
+                                                    <div className="h-36 relative overflow-hidden">
+                                                        <img src={act.image} alt={act.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                                    </div>
+                                                    <div className="p-4 flex flex-col flex-1">
+                                                        <h4 className="font-bold text-gray-900 text-[15px] leading-tight mb-2 line-clamp-2">{act.title}</h4>
+                                                        <div className="flex items-center text-[13px] text-orange-500 font-bold mb-auto">
+                                                            <Star className="w-3.5 h-3.5 fill-current mr-1 text-orange-400" />
+                                                            {act.rating} <span className="text-gray-400 font-normal ml-1">({act.count >= 1000 ? (act.count / 1000).toFixed(1) + 'K+' : act.count})</span>
+                                                        </div>
+                                                        <div className="mt-2 text-right">
+                                                            <div className="flex gap-1.5 items-baseline justify-end">
+                                                                <span className="text-[11px] text-gray-500 line-through font-medium">
+                                                                    {act.oldPrice}
+                                                                </span>
+                                                                <span className="font-bold text-gray-900 text-lg">
+                                                                    {act.price}
+                                                                </span>
+                                                            </div>
+                                                            {act.tags.find(t => t.color.includes('border-')) && (
+                                                                <div className={`mt-1.5 inline-block text-[10px] font-bold px-1.5 py-0.5 border rounded-sm ${act.tags.find(t => t.color.includes('border-')).color}`}>
+                                                                    {act.tags.find(t => t.color.includes('border-')).text}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             ))}
-                                            {hotel.badges.length === 0 && <span className="text-xs font-semibold px-2 py-0.5 bg-red-50 text-red-600 rounded">Booked 27 times today</span>}
-                                        </div>
 
-                                        <div className="flex items-start text-xs text-gray-600">
-                                            <span className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center mr-2 text-[10px] text-gray-500 mt-0.5">❝</span>
-                                            <p className="italic text-gray-500">{hotel.snippet}</p>
+                                            {/* See More Pill */}
+                                            <div className="snap-start flex-shrink-0 w-16 h-[280px] flex items-center justify-center">
+                                                <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 text-gray-500 hover:text-gray-800 transition-colors">
+                                                    <ChevronRight className="w-5 h-5" />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {/* Pricing & Rating Right Sidebar */}
-                                    <div className={`sm:w-56 p-5 border-t sm:border-t-0 sm:border-l border-gray-100 flex flex-col justify-between ${hotel.tags.includes('BRAND EXCLUSIVES') ? 'pt-10' : ''}`}>
-
-                                        {/* Top: Score */}
-                                        <div className="text-right mb-6">
-                                            <div className="flex items-center justify-end gap-2 mb-0.5">
-                                                <div className="text-right">
-                                                    <div className="font-bold text-blue-700">{hotel.scoreText}</div>
-                                                    <div className="text-xs text-gray-500">{hotel.reviews}</div>
-                                                </div>
-                                                <div className="w-9 h-9 bg-blue-700 text-white rounded-t-lg rounded-br-lg rounded-bl flex items-center justify-center font-bold text-lg">
-                                                    {hotel.score}
-                                                </div>
-                                            </div>
-                                            <div className="text-xs font-bold text-gray-700 bg-gray-100 inline-block px-2 py-0.5 rounded mt-1">
-                                                {hotel.locationScore} Location score
-                                            </div>
-                                        </div>
-
-                                        {/* Bottom: Price */}
-                                        <div className="text-right mt-auto">
-                                            {hotel.priceLabel && (
-                                                <div className={`text-xs font-bold border inline-block px-2 py-0.5 rounded mb-2 ${hotel.priceLabelColor ? hotel.priceLabelColor + ' border-transparent' : 'text-red-500 border-red-200 bg-red-50'}`}>
-                                                    {hotel.priceLabel.includes('Price') ? <ChevronRight className="w-3 h-3 inline transform -rotate-45" /> : null}
-                                                    {hotel.priceLabel}
-                                                </div>
-                                            )}
-
-                                            <div className="text-[10px] text-gray-500 mb-0.5">Per night before taxes and fees</div>
-
-                                            <div className="flex items-baseline justify-end gap-2">
-                                                <span className="text-red-500 text-lg font-bold line-through opacity-80">
-                                                    {hotel.oldPrice}
-                                                </span>
-                                                <span className="text-2xl font-bold text-red-600">
-                                                    {hotel.price}
-                                                </span>
-                                            </div>
-
-                                            {hotel.priceLabelColor?.includes('bg-red') ? (
-                                                <Button className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-bold tracking-wide py-2.5 rounded shadow-sm text-sm">
-                                                    Select Room
-                                                </Button>
-                                            ) : (
-                                                <div className="bg-gray-100 border border-gray-200 mt-2 p-2 rounded text-xs text-gray-600 font-medium">
-                                                    <span className="font-bold text-gray-900 text-sm">{hotel.price.replace('€', '€ ')}</span> When you <a href="/login" className="text-blue-600 hover:underline">sign in</a>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                </div>
+                                )}
                             </div>
                         ))}
                     </div>
