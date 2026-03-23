@@ -97,7 +97,7 @@ const MOCK_CAROUSEL_ACTIVITIES = [
 ];
 
 const MOCK_POPULAR_DESTINATIONS = [
-    { name: 'Ibiza', image: 'https://images.unsplash.com/photo-1560242259-2470a6c6ec2d?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Ibiza', image: 'https://images.unsplash.com/photo-1562920618-fa119ce0159b?q=80&w=800&auto=format&fit=crop' },
     { name: 'Tokyo', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop' },
     { name: 'Maldives', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop' },
     { name: 'Bali', image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=800&auto=format&fit=crop' },
