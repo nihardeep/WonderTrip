@@ -1,285 +1,147 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { useApi } from '../hooks/useApi';
-import { DESTINATION_CATEGORIES, PRICE_RANGES } from '../data/constants';
-import DestinationCard from '../components/destinations/DestinationCard';
-import FilterSidebar from '../components/destinations/FilterSidebar';
+import { useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronRight, ChevronLeft, Star, Heart } from 'lucide-react';
 
-const Destinations = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [destinations, setDestinations] = useState([]);
-  const [filteredDestinations, setFilteredDestinations] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [selectedPriceRange, setSelectedPriceRange] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('featured');
-  const { makeRequest, loading, error } = useApi();
+const MOCK_INSPIRATIONS = [
+  {
+    id: 'ibiza',
+    name: 'Ibiza',
+    tagline: 'The ultimate party and relaxation island.',
+    image: 'https://images.unsplash.com/photo-1562920618-fa119ce0159b?q=80&w=1200',
+    hotels: [
+      { id: 'ib1', name: 'The Ibiza Bay Resort', image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=600', rating: 4.8, reviews: 124, price: '€350' },
+      { id: 'ib2', name: 'Sol House Ibiza', image: 'https://images.unsplash.com/photo-1522792040997-7e7e60086c20?q=80&w=600', rating: 4.6, reviews: 89, price: '€280' },
+      { id: 'ib3', name: 'Destino Pacha', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600', rating: 4.9, reviews: 210, price: '€450' },
+      { id: 'ib4', name: 'Hard Rock Hotel', image: 'https://images.unsplash.com/photo-1551882547-ff40c0d12c5b?q=80&w=600', rating: 4.5, reviews: 340, price: '€310' },
+      { id: 'ib5', name: 'Ushuaïa Ibiza Beach Hotel', image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=600', rating: 4.7, reviews: 520, price: '€400' }
+    ]
+  },
+  {
+    id: 'tokyo',
+    name: 'Tokyo',
+    tagline: 'Experience the perfect blend of tradition and the future.',
+    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1200',
+    hotels: [
+      { id: 'tk1', name: 'Aman Tokyo', image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=600', rating: 4.9, reviews: 412, price: '¥120,000' },
+      { id: 'tk2', name: 'Park Hyatt Tokyo', image: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=600', rating: 4.8, reviews: 320, price: '¥85,000' },
+      { id: 'tk3', name: 'Conrad Tokyo', image: 'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?q=80&w=600', rating: 4.7, reviews: 215, price: '¥70,000' },
+      { id: 'tk4', name: 'The Ritz-Carlton', image: 'https://images.unsplash.com/photo-1542314831-c6a4d14cd40f?q=80&w=600', rating: 4.8, reviews: 180, price: '¥95,000' },
+      { id: 'tk5', name: 'Shinjuku Prince Hotel', image: 'https://images.unsplash.com/photo-1493997181344-712f2f19d87e?q=80&w=600', rating: 4.4, reviews: 650, price: '¥25,000' }
+    ]
+  },
+  {
+    id: 'maldives',
+    name: 'Maldives',
+    tagline: 'Crystal clear waters and overwater luxury.',
+    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=1200',
+    hotels: [
+      { id: 'm1', name: 'Soneva Jani', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600', rating: 4.9, reviews: 110, price: '$2,500' },
+      { id: 'm2', name: 'Gili Lankanfushi', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=600', rating: 4.8, reviews: 290, price: '$1,800' },
+      { id: 'm3', name: 'Conrad Maldives', image: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?q=80&w=600', rating: 4.7, reviews: 450, price: '$1,200' },
+      { id: 'm4', name: 'Six Senses Laamu', image: 'https://images.unsplash.com/photo-1540541338287-41700207dee6?q=80&w=600', rating: 4.8, reviews: 140, price: '$1,500' },
+      { id: 'm5', name: 'Baros Maldives', image: 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?q=80&w=600', rating: 4.9, reviews: 520, price: '$900' }
+    ]
+  }
+];
 
-  // Initialize filters from URL params
-  useEffect(() => {
-    const destinationParam = searchParams.get('destination');
-    const categoryParam = searchParams.get('category');
-    const priceParam = searchParams.get('price');
+const DestinationSection = ({ dest }) => {
+  const scrollRef = useRef(null);
 
-    if (destinationParam) setSearchQuery(destinationParam);
-    if (categoryParam) setSelectedCategory(categoryParam);
-    if (priceParam) {
-      const priceRange = PRICE_RANGES.find(range => range.label === priceParam);
-      setSelectedPriceRange(priceRange);
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const scrollAmount = direction === 'left' ? -400 : 400;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
-  }, [searchParams]);
-
-  useEffect(() => {
-    const fetchDestinations = async () => {
-      try {
-        // Mock data for now - replace with API call
-        const mockData = [
-          {
-            id: 1,
-            name: 'Bali Paradise',
-            location: 'Indonesia',
-            rating: 4.8,
-            reviews: 1250,
-            price: 1200,
-            duration: '7 days',
-            category: 'Beach',
-            description: 'Tropical beaches, ancient temples, and vibrant culture await in this Indonesian paradise.',
-            image: '/images/destinations/bali.jpg'
-          },
-          {
-            id: 2,
-            name: 'Swiss Alps Adventure',
-            location: 'Switzerland',
-            rating: 4.9,
-            reviews: 890,
-            price: 1800,
-            duration: '5 days',
-            category: 'Mountain',
-            description: 'Experience breathtaking mountain views, charming villages, and world-class skiing.',
-            image: '/images/destinations/swiss-alps.jpg'
-          },
-          {
-            id: 3,
-            name: 'Tokyo Explorer',
-            location: 'Japan',
-            rating: 4.7,
-            reviews: 2100,
-            price: 1500,
-            duration: '6 days',
-            category: 'City',
-            description: 'Dive into the bustling metropolis of Tokyo with its unique blend of tradition and modernity.',
-            image: '/images/destinations/tokyo.jpg'
-          },
-          {
-            id: 4,
-            name: 'Santorini Sunset',
-            location: 'Greece',
-            rating: 4.9,
-            reviews: 980,
-            price: 1350,
-            duration: '4 days',
-            category: 'Beach',
-            description: 'White-washed buildings, stunning sunsets, and crystal-clear waters in the Greek islands.',
-            image: '/images/destinations/santorini.jpg'
-          },
-          {
-            id: 5,
-            name: 'Machu Picchu Trek',
-            location: 'Peru',
-            rating: 4.8,
-            reviews: 750,
-            price: 2200,
-            duration: '8 days',
-            category: 'Adventure',
-            description: 'Hike the ancient Incan citadel and experience the majesty of the Andes mountains.',
-            image: '/images/destinations/machu-picchu.jpg'
-          },
-          {
-            id: 6,
-            name: 'Northern Lights Tour',
-            location: 'Iceland',
-            rating: 4.9,
-            reviews: 620,
-            price: 2800,
-            duration: '5 days',
-            category: 'Nature',
-            description: 'Chase the aurora borealis in the land of fire and ice with expert local guides.',
-            image: '/images/destinations/iceland.jpg'
-          }
-        ];
-
-        // Uncomment when API is ready:
-        // const data = await makeRequest('/destinations');
-        setDestinations(mockData);
-      } catch (err) {
-        console.error('Failed to fetch destinations:', err);
-      }
-    };
-
-    fetchDestinations();
-  }, [makeRequest]);
-
-  // Filter and sort destinations
-  useEffect(() => {
-    let filtered = [...destinations];
-
-    // Search filter
-    if (searchQuery) {
-      filtered = filtered.filter(dest =>
-        dest.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dest.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        dest.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Category filter
-    if (selectedCategory !== 'All') {
-      filtered = filtered.filter(dest => dest.category === selectedCategory);
-    }
-
-    // Price range filter
-    if (selectedPriceRange) {
-      filtered = filtered.filter(dest =>
-        dest.price >= selectedPriceRange.min && dest.price <= selectedPriceRange.max
-      );
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'rating':
-        filtered.sort((a, b) => b.rating - a.rating);
-        break;
-      case 'popular':
-        filtered.sort((a, b) => b.reviews - a.reviews);
-        break;
-      default:
-        // Keep original order for 'featured'
-        break;
-    }
-
-    setFilteredDestinations(filtered);
-  }, [destinations, selectedCategory, selectedPriceRange, searchQuery, sortBy]);
-
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-    const newParams = new URLSearchParams(searchParams);
-    if (category === 'All') {
-      newParams.delete('category');
-    } else {
-      newParams.set('category', category);
-    }
-    setSearchParams(newParams);
-  };
-
-  const handlePriceRangeChange = (priceRange) => {
-    setSelectedPriceRange(priceRange);
-    const newParams = new URLSearchParams(searchParams);
-    if (priceRange) {
-      newParams.set('price', priceRange.label);
-    } else {
-      newParams.delete('price');
-    }
-    setSearchParams(newParams);
   };
 
   return (
-    <div className="section-padding">
-      <div className="container-custom">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-display font-bold text-center mb-4">
-            Discover Amazing Destinations
-          </h1>
-          <p className="text-xl text-gray-600 text-center max-w-2xl mx-auto">
-            Explore the world's most beautiful places and create unforgettable memories with our curated collection of destinations.
-          </p>
+    <div className="mb-20">
+      {/* Destination Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div>
+          <h2 className="text-4xl font-display font-bold text-gray-900 mb-2">{dest.name}</h2>
+          <p className="text-xl text-gray-600">{dest.tagline}</p>
         </div>
+        <Link
+          to={`/discover?search=${encodeURIComponent(dest.name)}`}
+          className="mt-4 md:mt-0 inline-flex items-center font-bold text-primary-600 hover:text-primary-700 transition-colors group text-lg"
+        >
+          Explore {dest.name}
+          <ChevronRight className="w-5 h-5 ml-1 transform group-hover:translate-x-1 transition-transform" />
+        </Link>
+      </div>
 
-        {/* Search and Sort Bar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search destinations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 outline-none"
-            />
-          </div>
-          <div className="md:w-48">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-200 transition-all duration-200 outline-none bg-white"
-            >
-              <option value="featured">Featured</option>
-              <option value="popular">Most Popular</option>
-              <option value="rating">Highest Rated</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
-          </div>
-        </div>
+      {/* Hotel Carousel */}
+      <div className="relative group/section max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Navigation Buttons */}
+        <button
+          onClick={() => scroll('left')}
+          className="hidden lg:flex absolute left-0 sm:-left-4 top-[110px] -translate-y-1/2 z-20 w-12 h-12 bg-white rounded-full items-center justify-center shadow-xl border border-gray-100 text-gray-700 hover:text-primary-600 hover:scale-105 transition-all opacity-0 group-hover/section:opacity-100"
+        >
+          <ChevronLeft className="w-7 h-7" />
+        </button>
+        <button
+          onClick={() => scroll('right')}
+          className="hidden lg:flex absolute right-0 sm:-right-4 top-[110px] -translate-y-1/2 z-20 w-12 h-12 bg-white rounded-full items-center justify-center shadow-xl border border-gray-100 text-gray-700 hover:text-primary-600 hover:scale-105 transition-all opacity-0 group-hover/section:opacity-100"
+        >
+          <ChevronRight className="w-7 h-7" />
+        </button>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
-          <FilterSidebar
-            categories={DESTINATION_CATEGORIES}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-            selectedPriceRange={selectedPriceRange}
-            onPriceRangeChange={handlePriceRangeChange}
-          />
-
-          {/* Destinations Grid */}
-          <div className="flex-1">
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                <p className="text-red-600">Failed to load destinations. Please try again.</p>
-              </div>
-            )}
-
-            {loading ? (
-              <div className="flex items-center justify-center min-h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-              </div>
-            ) : (
-              <>
-                <div className="mb-4 text-gray-600">
-                  Showing {filteredDestinations.length} destination{filteredDestinations.length !== 1 ? 's' : ''}
-                  {searchQuery && ` for "${searchQuery}"`}
-                  {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-                  {selectedPriceRange && ` (${selectedPriceRange.label})`}
+        {/* Carousel Track */}
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto gap-6 pb-8 pt-2 snap-x hide-scrollbar"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
+          {dest.hotels.map(hotel => (
+            <div key={hotel.id} className="snap-start flex-shrink-0 w-[300px] group cursor-pointer">
+              <div className="relative h-[220px] rounded-2xl overflow-hidden mb-3 shadow-sm group-hover:shadow-md transition-shadow bg-gray-100">
+                <img
+                  src={hotel.image}
+                  alt={hotel.name}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading="lazy"
+                />
+                <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm shadow flex items-center justify-center hover:text-red-500 text-gray-400 transition-colors">
+                  <Heart className="w-4 h-4" />
                 </div>
-
-                {filteredDestinations.length === 0 ? (
-                  <div className="text-center py-12">
-                    <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">No destinations found</h3>
-                    <p className="text-gray-600">Try adjusting your search criteria or filters.</p>
+              </div>
+              <div className="px-1">
+                <div className="flex justify-between items-start mb-1">
+                  <h3 className="font-bold text-gray-900 text-lg truncate pr-2 group-hover:text-primary-600 transition-colors">{hotel.name}</h3>
+                  <div className="flex items-center text-sm font-semibold text-gray-900 px-1 py-0.5 rounded">
+                    <Star className="w-3.5 h-3.5 mr-1 fill-gray-900 text-gray-900" />
+                    {hotel.rating}
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredDestinations.map((destination) => (
-                      <DestinationCard key={destination.id} destination={destination} />
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+                </div>
+                <div className="text-gray-500 text-sm mb-2">{hotel.reviews} reviews</div>
+                <div className="font-bold text-gray-900 text-lg">{hotel.price} <span className="text-sm font-normal text-gray-500 ml-1">night</span></div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+    </div>
+  );
+};
+
+const Destinations = () => {
+  return (
+    <div className="bg-white min-h-screen pb-20 pt-16">
+      {/* Header / Hero component for Inspiration Page */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 text-center">
+        <h1 className="text-5xl md:text-6xl font-display font-bold text-gray-900 mb-6 tracking-tight">
+          Get Inspired for Your Next Journey
+        </h1>
+        <p className="text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed">
+          Discover stunning accommodations in the world's most sought-after destinations. Explore and start planning today.
+        </p>
+      </div>
+
+      {/* Render each Inspiration Section */}
+      {MOCK_INSPIRATIONS.map(dest => (
+        <DestinationSection key={dest.id} dest={dest} />
+      ))}
     </div>
   );
 };

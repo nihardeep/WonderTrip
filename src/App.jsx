@@ -72,7 +72,7 @@ function App() {
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
 
-              <Route path="/destinations" element={<CreateTrip />} />
+              <Route path="/destinations" element={<Destinations />} />
               <Route path="/destinations/:id" element={<DestinationDetail />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
