@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Search, MapPin, Heart, ChevronRight, Bus, Car, Star, Navigation, Zap, ChevronDown, Check } from 'lucide-react';
 import Button from '../components/common/Button';
 
@@ -26,7 +26,7 @@ const MOCK_HOTELS = [
         id: 2,
         name: 'Sol House Ibiza',
         location: 'San Antonio, Ibiza - 10.4 km to center',
-        image: 'https://images.unsplash.com/photo-1542314831-c6a4d14d8c85?q=80&w=800&auto=format&fit=crop',
+        image: 'https://images.unsplash.com/photo-1522798514-97ceb8c4f1c8?q=80&w=800&auto=format&fit=crop',
         tags: ['BRAND EXCLUSIVES', 'Limited time offer'],
         rating: 4,
         score: '8.2',
@@ -112,12 +112,69 @@ const FILTER_PROPERTY = [
 ];
 
 const CreateTrip = () => {
+    const [selectedDestination, setSelectedDestination] = useState('Ibiza');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [adults, setAdults] = useState(1);
+    const [rooms, setRooms] = useState(1);
     const [minPrice, setMinPrice] = useState('0');
     const [maxPrice, setMaxPrice] = useState('1,21,700');
+    const carouselRef = useRef(null);
 
     return (
         <div className="bg-[#f5f7fa] min-h-screen pb-24">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex flex-col lg:flex-row gap-6">
+
+            {/* Top Search Bar (Imported from Discover page) */}
+            <div className="bg-white border-b border-gray-200 py-4 mb-2 shadow-sm">
+                <div className="max-w-6xl mx-auto px-4 flex justify-center">
+                    <div className="flex w-full items-center bg-white border border-gray-300 rounded-lg shadow-sm hover:border-primary-400 transition-colors hidden md:flex">
+                        {/* Destination */}
+                        <div className="flex-[2] relative border-r border-gray-200">
+                            <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                                <Search className="w-5 h-5 text-gray-400" />
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Where to?"
+                                className="w-full pl-10 pr-4 py-2 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent border-none"
+                                value={selectedDestination}
+                                onChange={(e) => setSelectedDestination(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Check-in */}
+                        <div className="flex-1 relative border-r border-gray-200 min-w-[120px]">
+                            <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Check-in</div>
+                            <input type="date" className="w-full pl-2 pt-3 pb-1 border-none focus:ring-0 text-sm" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        </div>
+
+                        {/* Check-out */}
+                        <div className="flex-1 relative border-r border-gray-200 min-w-[120px]">
+                            <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Check-out</div>
+                            <input type="date" className="w-full pl-2 pt-3 pb-1 border-none focus:ring-0 text-sm" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                        </div>
+
+                        {/* Adults */}
+                        <div className="w-20 border-r border-gray-200 relative">
+                            <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Adults</div>
+                            <input type="number" min="1" className="w-full pl-3 pt-3 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 border-none text-sm" value={adults} onChange={(e) => setAdults(e.target.value)} />
+                        </div>
+
+                        {/* Rooms */}
+                        <div className="w-20 relative border-r border-gray-200">
+                            <div className="absolute left-2 top-1 text-[10px] text-gray-500 font-medium">Rooms</div>
+                            <input type="number" min="1" className="w-full pl-3 pt-3 pb-1 rounded-none focus:outline-none focus:ring-2 focus:ring-primary-500 border-none text-sm" value={rooms} onChange={(e) => setRooms(e.target.value)} />
+                        </div>
+
+                        {/* Search Button */}
+                        <button className="p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-r-lg transition-colors flex items-center justify-center font-bold px-6">
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 flex flex-col lg:flex-row gap-6">
 
                 {/* Left Sidebar (Filters + Itinerary) */}
                 <aside className="w-full lg:w-1/4 flex-shrink-0 space-y-4">
@@ -408,71 +465,82 @@ const CreateTrip = () => {
                                 {/* Activity Carousel Inject after the second hotel (index 1) */}
                                 {index === 1 && (
                                     <div className="py-6 mt-6 mb-2 border-t border-b border-gray-200">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-4 px-1">Top things to do in Ibiza</h3>
-                                        <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                                            {/* Intro Card */}
-                                            <div className="snap-start flex-shrink-0 w-48 h-[280px] rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm">
-                                                <img src="https://images.unsplash.com/photo-1533475960416-560fe88db907?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Ibiza" />
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                                                <div className="absolute bottom-4 left-4 text-white">
-                                                    <div className="font-bold text-2xl mb-1">Ibiza</div>
-                                                    <div className="text-sm font-medium flex items-center hover:underline">Explore <ChevronRight className="w-4 h-4 ml-1" /></div>
-                                                </div>
-                                            </div>
+                                        <div className="flex items-center justify-between mb-4 px-1">
+                                            <h3 className="text-xl font-bold text-gray-900">Top things to do in Ibiza</h3>
+                                        </div>
+                                        <div className="relative group/carousel">
+                                            {/* Scroll Right Button */}
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); carouselRef.current?.scrollBy({ left: 350, behavior: 'smooth' }); }}
+                                                className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full items-center justify-center shadow-lg border border-gray-200 text-gray-600 hover:text-gray-900 hover:scale-105 transition-all opacity-0 group-hover/carousel:opacity-100 focus:opacity-100"
+                                            >
+                                                <ChevronRight className="w-6 h-6" />
+                                            </button>
 
-                                            {/* Activity Cards */}
-                                            {MOCK_CAROUSEL_ACTIVITIES.map(act => (
-                                                <div key={act.id} className="snap-start flex-shrink-0 w-64 h-[280px] bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow relative">
-                                                    {act.tags.find(t => t.color.includes('bg-orange-500')) && (
-                                                        <div className="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">
-                                                            {act.tags.find(t => t.color.includes('bg-orange-500')).text}
-                                                        </div>
-                                                    )}
-                                                    <div className="h-36 relative overflow-hidden">
-                                                        <img src={act.image} alt={act.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            <div ref={carouselRef} className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar relative" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                                {/* Intro Card */}
+                                                <div className="snap-start flex-shrink-0 w-48 h-[280px] rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm">
+                                                    <img src="https://images.unsplash.com/photo-1562920618-fa119ce0159b?q=80&w=800&auto=format&fit=crop" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="Ibiza" />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                                    <div className="absolute bottom-4 left-4 text-white">
+                                                        <div className="font-bold text-2xl mb-1">Ibiza</div>
+                                                        <div className="text-sm font-medium flex items-center hover:underline">Explore <ChevronRight className="w-4 h-4 ml-1" /></div>
                                                     </div>
-                                                    <div className="p-4 flex flex-col flex-1">
-                                                        <h4 className="font-bold text-gray-900 text-[15px] leading-tight mb-2 line-clamp-2">{act.title}</h4>
-                                                        <div className="flex items-center text-[13px] text-orange-500 font-bold mb-auto">
-                                                            <Star className="w-3.5 h-3.5 fill-current mr-1 text-orange-400" />
-                                                            {act.rating} <span className="text-gray-400 font-normal ml-1">({act.count >= 1000 ? (act.count / 1000).toFixed(1) + 'K+' : act.count})</span>
-                                                        </div>
-                                                        <div className="mt-2 text-right">
-                                                            <div className="flex gap-1.5 items-baseline justify-end">
-                                                                <span className="text-[11px] text-gray-500 line-through font-medium">
-                                                                    {act.oldPrice}
-                                                                </span>
-                                                                <span className="font-bold text-gray-900 text-lg">
-                                                                    {act.price}
-                                                                </span>
+                                                </div>
+
+                                                {/* Activity Cards */}
+                                                {MOCK_CAROUSEL_ACTIVITIES.map(act => (
+                                                    <div key={act.id} className="snap-start flex-shrink-0 w-64 h-[280px] bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col group cursor-pointer hover:shadow-md transition-shadow relative">
+                                                        {act.tags.find(t => t.color.includes('bg-orange-500')) && (
+                                                            <div className="absolute top-2 left-2 z-10 bg-orange-500 text-white text-[11px] font-bold px-2 py-0.5 rounded shadow-sm">
+                                                                {act.tags.find(t => t.color.includes('bg-orange-500')).text}
                                                             </div>
-                                                            {act.tags.find(t => t.color.includes('border-')) && (
-                                                                <div className={`mt-1.5 inline-block text-[10px] font-bold px-1.5 py-0.5 border rounded-sm ${act.tags.find(t => t.color.includes('border-')).color}`}>
-                                                                    {act.tags.find(t => t.color.includes('border-')).text}
+                                                        )}
+                                                        <div className="h-36 relative overflow-hidden">
+                                                            <img src={act.image} alt={act.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                                        </div>
+                                                        <div className="p-4 flex flex-col flex-1">
+                                                            <h4 className="font-bold text-gray-900 text-[15px] leading-tight mb-2 line-clamp-2">{act.title}</h4>
+                                                            <div className="flex items-center text-[13px] text-orange-500 font-bold mb-auto">
+                                                                <Star className="w-3.5 h-3.5 fill-current mr-1 text-orange-400" />
+                                                                {act.rating} <span className="text-gray-400 font-normal ml-1">({act.count >= 1000 ? (act.count / 1000).toFixed(1) + 'K+' : act.count})</span>
+                                                            </div>
+                                                            <div className="mt-2 text-right">
+                                                                <div className="flex gap-1.5 items-baseline justify-end">
+                                                                    <span className="text-[11px] text-gray-500 line-through font-medium">
+                                                                        {act.oldPrice}
+                                                                    </span>
+                                                                    <span className="font-bold text-gray-900 text-lg">
+                                                                        {act.price}
+                                                                    </span>
                                                                 </div>
-                                                            )}
+                                                                {act.tags.find(t => t.color.includes('border-')) && (
+                                                                    <div className={`mt-1.5 inline-block text-[10px] font-bold px-1.5 py-0.5 border rounded-sm ${act.tags.find(t => t.color.includes('border-')).color}`}>
+                                                                        {act.tags.find(t => t.color.includes('border-')).text}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                ))}
 
-                                            {/* See More Pill */}
-                                            <div className="snap-start flex-shrink-0 w-16 h-[280px] flex items-center justify-center">
-                                                <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 text-gray-500 hover:text-gray-800 transition-colors">
-                                                    <ChevronRight className="w-5 h-5" />
-                                                </button>
+                                                {/* See More Pill */}
+                                                <div className="snap-start flex-shrink-0 w-16 h-[280px] flex items-center justify-center">
+                                                    <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 text-gray-500 hover:text-gray-800 transition-colors">
+                                                        <ChevronRight className="w-5 h-5" />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                )}
-                            </div>
-                        ))}
+                                    </div>
+                        )}
                     </div>
-
-                </main>
-
+                        ))}
             </div>
-        </div>
+        </main>
+            </div >
+        </div >
     );
 };
 
