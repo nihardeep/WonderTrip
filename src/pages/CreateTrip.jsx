@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Search, MapPin, Heart, ChevronRight, Bus, Car, Star, Navigation, Zap, ChevronDown, Check } from 'lucide-react';
+import { Search, MapPin, Heart, ChevronRight, ChevronLeft, Bus, Car, Star, Navigation, Zap, ChevronDown, Check } from 'lucide-react';
 import Button from '../components/common/Button';
 
 // Dummy Data
@@ -88,11 +88,11 @@ const MOCK_TRANSIT = [
 ];
 
 const MOCK_CAROUSEL_ACTIVITIES = [
-    { id: 101, title: 'Kayak the bay with snorkeling', rating: 4.6, count: 1956, oldPrice: '€ 35.00', price: '€ 25.00', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Spring deal', color: 'bg-orange-500' }, { text: 'Sale 15% off', color: 'text-orange-500 bg-orange-50 border-orange-200' }] },
-    { id: 102, title: 'Old Town Walking Tour', rating: 4.8, count: 16000, oldPrice: '€ 20.00', price: '€ 15.00', image: 'https://images.unsplash.com/photo-1554523363-2383c31db1cc?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Spring deal', color: 'bg-orange-500' }, { text: 'Sale 25% off', color: 'text-orange-500 bg-orange-50 border-orange-200' }] },
-    { id: 103, title: 'Ibiza Sunset Cruise Tour', rating: 4.4, count: 3831, oldPrice: '€ 60.00', price: '€ 45.00', image: 'https://images.unsplash.com/photo-1606820542152-78d1283d6a36?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Combo 14% off', color: 'text-red-500 bg-red-50 border-red-200' }] },
-    { id: 104, title: 'Dalt Vila Historical Experience', rating: 5.0, count: 33, oldPrice: '€ 15.00', price: '€ 12.50', image: 'https://images.unsplash.com/photo-1563725586617-64b18c5e0094?q=80&w=800&auto=format&fit=crop', tags: [] },
-    { id: 105, title: 'Formentera Day Trip Ticket', rating: 4.5, count: 1768, oldPrice: '€ 40.00', price: '€ 35.00', image: 'https://images.unsplash.com/photo-1574676527582-84950da7fc80?q=80&w=800&auto=format&fit=crop', tags: [] }
+    { id: 101, title: 'Kayak the bay with snorkeling', rating: 4.6, count: 1956, oldPrice: '€ 35.00', price: '€ 25.00', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Spring deal', color: 'bg-orange-500' }, { text: 'Sale 15% off', color: 'text-orange-500 bg-orange-50 border-orange-200' }] },
+    { id: 102, title: 'Old Town Walking Tour', rating: 4.8, count: 16000, oldPrice: '€ 20.00', price: '€ 15.00', image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Spring deal', color: 'bg-orange-500' }, { text: 'Sale 25% off', color: 'text-orange-500 bg-orange-50 border-orange-200' }] },
+    { id: 103, title: 'Ibiza Sunset Cruise Tour', rating: 4.4, count: 3831, oldPrice: '€ 60.00', price: '€ 45.00', image: 'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?q=80&w=800&auto=format&fit=crop', tags: [{ text: 'Combo 14% off', color: 'text-red-500 bg-red-50 border-red-200' }] },
+    { id: 104, title: 'Dalt Vila Historical Experience', rating: 5.0, count: 33, oldPrice: '€ 15.00', price: '€ 12.50', image: 'https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?q=80&w=800&auto=format&fit=crop', tags: [] },
+    { id: 105, title: 'Formentera Day Trip Ticket', rating: 4.5, count: 1768, oldPrice: '€ 40.00', price: '€ 35.00', image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800&auto=format&fit=crop', tags: [] }
 ];
 
 const FILTER_POPULAR = [
@@ -469,6 +469,14 @@ const CreateTrip = () => {
                                             <h3 className="text-xl font-bold text-gray-900">Top things to do in Ibiza</h3>
                                         </div>
                                         <div className="relative group/carousel">
+                                            {/* Scroll Left Button */}
+                                            <button
+                                                onClick={(e) => { e.preventDefault(); carouselRef.current?.scrollBy({ left: -350, behavior: 'smooth' }); }}
+                                                className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full items-center justify-center shadow-lg border border-gray-200 text-gray-600 hover:text-gray-900 hover:scale-105 transition-all opacity-0 group-hover/carousel:opacity-100 focus:opacity-100"
+                                            >
+                                                <ChevronLeft className="w-6 h-6" />
+                                            </button>
+
                                             {/* Scroll Right Button */}
                                             <button
                                                 onClick={(e) => { e.preventDefault(); carouselRef.current?.scrollBy({ left: 350, behavior: 'smooth' }); }}
@@ -524,12 +532,7 @@ const CreateTrip = () => {
                                                     </div>
                                                 ))}
 
-                                                {/* See More Pill */}
-                                                <div className="snap-start flex-shrink-0 w-16 h-[280px] flex items-center justify-center">
-                                                    <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center bg-white shadow-sm hover:bg-gray-50 text-gray-500 hover:text-gray-800 transition-colors">
-                                                        <ChevronRight className="w-5 h-5" />
-                                                    </button>
-                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
