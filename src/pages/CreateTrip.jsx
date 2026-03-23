@@ -267,8 +267,8 @@ const CreateTrip = () => {
                             <div key={hotel.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow flex flex-col sm:flex-row">
 
                                 {/* Image Section */}
-                                <div className="sm:w-80 h-56 sm:h-auto relative flex-shrink-0">
-                                    <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" />
+                                <div className="w-full sm:w-72 relative flex-shrink-0 min-h-[240px]">
+                                    <img src={hotel.image} alt={hotel.name} className="absolute inset-0 w-full h-full object-cover" />
 
                                     {/* Top banner / badges on image */}
                                     {hotel.tags[0] === 'BRAND EXCLUSIVES' ? (
