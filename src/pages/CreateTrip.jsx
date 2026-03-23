@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, MapPin, Heart, ChevronRight, ChevronLeft, Bus, Car, Star, Navigation, Zap, ChevronDown, Check } from 'lucide-react';
 import Button from '../components/common/Button';
 
@@ -95,6 +96,15 @@ const MOCK_CAROUSEL_ACTIVITIES = [
     { id: 105, title: 'Formentera Day Trip Ticket', rating: 4.5, count: 1768, oldPrice: '€ 40.00', price: '€ 35.00', image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800&auto=format&fit=crop', tags: [] }
 ];
 
+const MOCK_POPULAR_DESTINATIONS = [
+    { name: 'Ibiza', image: 'https://images.unsplash.com/photo-1560242259-2470a6c6ec2d?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Tokyo', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Maldives', image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Bali', image: 'https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Paris', image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=800&auto=format&fit=crop' },
+    { name: 'Rome', image: 'https://images.unsplash.com/photo-1531572753322-ad063cecc140?q=80&w=800&auto=format&fit=crop' }
+];
+
 const FILTER_POPULAR = [
     'Internet access', 'TV', 'Ironing facilities', 'Heating', 'Bathtub', 'Guest rating: 9+ Exceptional', 'Swimming pool', 'Breakfast included'
 ];
@@ -120,6 +130,7 @@ const CreateTrip = () => {
     const [minPrice, setMinPrice] = useState('0');
     const [maxPrice, setMaxPrice] = useState('1,21,700');
     const carouselRef = useRef(null);
+    const popCarouselRef = useRef(null);
 
     return (
         <div className="bg-[#f5f7fa] min-h-screen pb-24">
@@ -170,6 +181,47 @@ const CreateTrip = () => {
                         <button className="p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-r-lg transition-colors flex items-center justify-center font-bold px-6">
                             Search
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Popular Destinations Carousel */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 mb-4">
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-2xl font-bold text-gray-900">Popular Destinations</h2>
+                </div>
+                <div className="relative group/pop">
+                    {/* Left Scroll Button */}
+                    <button
+                        onClick={(e) => { e.preventDefault(); popCarouselRef.current?.scrollBy({ left: -350, behavior: 'smooth' }); }}
+                        className="hidden lg:flex absolute -left-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full items-center justify-center shadow-lg border border-gray-200 text-gray-600 hover:text-gray-900 hover:scale-105 transition-all opacity-0 group-hover/pop:opacity-100 focus:opacity-100"
+                    >
+                        <ChevronLeft className="w-6 h-6" />
+                    </button>
+
+                    {/* Right Scroll Button */}
+                    <button
+                        onClick={(e) => { e.preventDefault(); popCarouselRef.current?.scrollBy({ left: 350, behavior: 'smooth' }); }}
+                        className="hidden lg:flex absolute -right-5 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white rounded-full items-center justify-center shadow-lg border border-gray-200 text-gray-600 hover:text-gray-900 hover:scale-105 transition-all opacity-0 group-hover/pop:opacity-100 focus:opacity-100"
+                    >
+                        <ChevronRight className="w-6 h-6" />
+                    </button>
+
+                    <div ref={popCarouselRef} className="flex overflow-x-auto gap-5 pb-4 snap-x hide-scrollbar relative" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                        {MOCK_POPULAR_DESTINATIONS.map(dest => (
+                            <Link to={`/discover?search=${encodeURIComponent(dest.name)}`} key={dest.name} className="snap-start flex-shrink-0 w-[280px] h-[240px] rounded-2xl relative overflow-hidden group cursor-pointer shadow-sm block">
+                                <img src={dest.image} alt={dest.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10 transition-opacity duration-300"></div>
+                                <div className="absolute top-5 left-5 z-20">
+                                    <h3 className="text-white font-bold text-3xl drop-shadow-md">{dest.name}</h3>
+                                </div>
+                                <div className="absolute bottom-5 left-0 right-0 z-20 flex justify-center translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                                    <div className="bg-white/95 backdrop-blur-sm text-gray-900 font-bold px-6 py-2.5 rounded-full text-sm shadow-xl flex items-center hover:bg-gray-50 scale-95 group-hover:scale-100 transition-all">
+                                        View Details <ChevronRight className="w-4 h-4 ml-1" />
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </div>
