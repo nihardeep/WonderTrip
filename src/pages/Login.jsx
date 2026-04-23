@@ -69,7 +69,7 @@ const Login = () => {
 
     // Send data to n8n webhook
     try {
-      const response = await fetch('https://maclina.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
+      const response = await fetch('https://nds123445.app.n8n.cloud/webhook/933ce8d9-e632-45dc-9144-87188d27666a', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ const Login = () => {
 
           // Pre-fetch search results for Discover page
           try {
-            const searchResponse = await fetch('https://maclina.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
+            const searchResponse = await fetch('https://nds123445.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
