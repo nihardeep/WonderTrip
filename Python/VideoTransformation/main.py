@@ -20,7 +20,7 @@ MAX_VIDEO_DURATION_SEC = 180  # 3 minutes
 ALLOWED_EXTENSIONS = {".mp4", ".mov", ".webm"}
 
 # 🔹 n8n webhook (YOUR REAL URL)
-N8N_WEBHOOK_URL = "https://rahulmohan.app.n8n.cloud/webhook-test/ac5d8037-976d-4384-8622-a08566629e3e"
+N8N_WEBHOOK_URL = "https://nds1234567.app.n8n.cloud/webhook/ac5d8037-976d-4384-8622-a08566629e3e"
 
 # ==============================
 # APP
